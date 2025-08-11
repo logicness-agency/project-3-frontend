@@ -1,9 +1,36 @@
-import { useState, useEffect, useContext } from "react";
+import { useState, useEffect, useContext, useMemo } from "react";
 import { Link } from "react-router-dom";
 import axios from "axios";
 import { AuthContext } from "../context/auth.context";
+import CanvasJSReact from '@canvasjs/react-charts';
+const CanvasJSChart = CanvasJSReact.CanvasJSChart;
 
 const API_URL = process.env.REACT_APP_API_URL;
+const WEEK_DAYS = ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"];
+
+// --- Date helpers ---
+function toLocalDate(dateLike) {
+  const d = new Date(dateLike);
+  return isNaN(d) ? null : d;
+}
+function startOfCurrentWeek() {
+  const now = new Date();
+  // getDay(): 0=Sun..6=Sat -> convert to ISO Monday=0..Sunday=6
+  const isoDay = (now.getDay() + 6) % 7;
+  const start = new Date(now.getFullYear(), now.getMonth(), now.getDate() - isoDay);
+  start.setHours(0, 0, 0, 0);
+  return start;
+}
+function endOfCurrentWeek() {
+  const start = startOfCurrentWeek();
+  const end = new Date(start);
+  end.setDate(start.getDate() + 6);
+  end.setHours(23, 59, 59, 999);
+  return end;
+}
+function weekdayNameEn(date) {
+  return date.toLocaleDateString("en-US", { weekday: "long" });
+}
 
 export default function Dashboard() {
   const { isLoading } = useContext(AuthContext);
@@ -14,37 +41,50 @@ export default function Dashboard() {
   const [categories, setCategories] = useState([]);
 
   const storedToken = localStorage.getItem("authToken");
+  const authHeader = useMemo(
+    () => ({ headers: { Authorization: `Bearer ${storedToken}` } }),
+    [storedToken]
+  );
 
   useEffect(() => {
     axios
-      .get(`${API_URL}/tasks`, {
-        headers: { Authorization: `Bearer ${storedToken}` },
-      })
+      .get(`${API_URL}/tasks`, authHeader)
       .then((res) => setTasks(res.data))
-      .catch((err) => console.error("Error loading tasks:", err));
-  }, [storedToken]);
+      .catch((err) => console.error("Error loading tasks:", err.response?.data || err.message));
+  }, [authHeader]);
 
   useEffect(() => {
     axios
-      .get(`${API_URL}/categories`, {
-        headers: { Authorization: `Bearer ${storedToken}` },
-      })
+      .get(`${API_URL}/categories`, authHeader)
       .then((res) => setCategories(res.data))
-      .catch((err) => console.error("Error loading categories:", err));
-  }, [storedToken]);
+      .catch((err) => console.error("Error loading categories:", err.response?.data || err.message));
+  }, [authHeader]);
 
-  const filteredTasks = tasks.filter((task) => {
-    const categoryMatch = filterCategory === "all" || task.category?._id === filterCategory;
-    const statusMatch = filterStatus === "all" || task.status === filterStatus;
-    return categoryMatch && statusMatch;
-  });
+  // Only tasks in the current week (Mon–Sun)
+  const weekStart = startOfCurrentWeek();
+  const weekEnd = endOfCurrentWeek();
+
+  const tasksInWeek = useMemo(() => {
+    return tasks.filter((t) => {
+      const d = toLocalDate(t.date);
+      return d && d >= weekStart && d <= weekEnd;
+    });
+  }, [tasks, weekStart, weekEnd]);
+
+  const filteredTasks = useMemo(() => {
+    return tasks.filter((task) => {
+      const categoryMatch = filterCategory === "all" || task.category?._id === filterCategory;
+      const statusMatch = filterStatus === "all" || task.status === filterStatus;
+      return categoryMatch && statusMatch;
+    });
+  }, [tasks, filterCategory, filterStatus]);
 
   if (isLoading) return <p>Loading...</p>;
 
   return (
     <div className="grid grid-cols-1 md:grid-cols-4 gap-6 pt-24 px-4 p-8 min-h-screen bg-dark bento-section">
 
-      {/* Today's Tasks */}
+      {/* Today's tinqs */}
       <div className="relative rounded-xl bg-[#1c1c1e] p-6 card--border-glow text-white md:col-span-1">
         <h2 className="text-xl font-bold mb-2">Today's tinqs</h2>
         <p className="text-sm text-gray-400">Feature coming soon</p>
@@ -52,7 +92,7 @@ export default function Dashboard() {
 
       {/* This Week */}
       <div className="relative rounded-xl bg-[#1c1c1e] p-6 card--border-glow text-white md:col-span-2 md:row-span-2 flex flex-col">
-        <div className="flex justify-between items-center mb-4">
+        <div className="flex justify-between items-center mb-2">
           <h2 className="text-xl font-bold">This Week</h2>
           <Link
             to="/add-tinq"
@@ -61,42 +101,45 @@ export default function Dashboard() {
             + Add tinq
           </Link>
         </div>
+        <p className="text-xs text-gray-400 mb-4">
+          {weekStart.toLocaleDateString()} — {weekEnd.toLocaleDateString()}
+        </p>
 
         <div className="grid grid-cols-7 gap-2 flex-1">
-          {["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"].map(
-            (day, index) => (
-              <div
-                key={index}
-                className="bg-[#2a2a2d] rounded-lg p-3 flex flex-col h-full overflow-hidden"
-              >
-                <div className="font-semibold text-purple-300 mb-2">{day}</div>
-                <ul className="text-xs space-y-1 overflow-y-auto flex-1">
-                  {tasks
-                    .filter((t) => {
-                      const taskDate = new Date(t.date);
-                      const taskDay = taskDate.toLocaleDateString("en-US", {
-                        weekday: "long",
-                      });
-                      return taskDay === day;
-                    })
-                    .map((t) => (
-                      <li key={t._id}>
-                        <Link
-                          to={`/tinq/${t._id}`}
-                          className="block bg-purple-800/30 px-2 py-1 rounded-full text-white truncate hover:bg-purple-700 transition"
-                        >
-                          {t.title}
-                        </Link>
-                      </li>
-                    ))}
-                </ul>
-              </div>
-            )
-          )}
+          {WEEK_DAYS.map((day) => (
+            <div key={day} className="bg-[#2a2a2d] rounded-lg p-3 flex flex-col h-full overflow-hidden">
+              <div className="font-semibold text-purple-300 mb-2">{day}</div>
+              <ul className="text-xs space-y-1 overflow-y-auto flex-1">
+                {tasksInWeek
+                  .filter((t) => {
+                    const d = toLocalDate(t.date);
+                    return d && weekdayNameEn(d) === day;
+                  })
+                  .map((t) => (
+                    <li key={t._id}>
+                      <Link
+                        to={`/tinq/${t._id}`}
+                        className="block bg-purple-800/30 px-2 py-1 rounded-full text-white truncate hover:bg-purple-700 transition"
+                        title={t.title}
+                      >
+                        {t.title}
+                      </Link>
+                    </li>
+                  ))}
+
+                {tasksInWeek.filter((t) => {
+                  const d = toLocalDate(t.date);
+                  return d && weekdayNameEn(d) === day;
+                }).length === 0 && (
+                    <li className="text-gray-500 italic">No tinqs</li>
+                  )}
+              </ul>
+            </div>
+          ))}
         </div>
       </div>
 
-      {/* All my Tinqs */}
+      {/* All my tinqs (opens modal) */}
       <div className="relative rounded-xl bg-[#1c1c1e] p-6 card--border-glow text-white md:col-span-1 flex flex-col items-center justify-center text-center">
         <h2 className="text-xl font-bold mb-2">All my tinqs</h2>
         <button
@@ -110,10 +153,66 @@ export default function Dashboard() {
 
       {/* Progress */}
       <div className="relative rounded-xl bg-[#1c1c1e] p-6 card--border-glow text-white md:col-span-1">
-        <h2 className="text-xl font-bold mb-2">Progress</h2>
-        <p className="text-sm text-gray-400">
-          {tasks.filter((t) => t.status === "done").length} / {tasks.length} completed
-        </p>
+        <h2 className="text-xl font-bold mb-2">Monthly Progress</h2>
+
+        {(() => {
+          // --- helpers ---
+          const sameMonth = (d1, d2) =>
+            d1.getFullYear() === d2.getFullYear() && d1.getMonth() === d2.getMonth();
+
+          const now = new Date();
+          const monthly = tasks.filter(t => t.date && sameMonth(new Date(t.date), now));
+          const total = tasks.length;
+
+          const countByStatus = list => ({
+            pending: list.filter(t => t.status === "pending").length,
+            inProgress: list.filter(t => t.status === "in-progress").length,
+            done: list.filter(t => t.status === "done").length,
+          });
+
+          const m = countByStatus(monthly);
+          const o = countByStatus(tasks);
+
+
+          const purple = "#A855F7";
+          const purpleDim = "#527affff";
+          const teal = "#10B981";
+          const grayBar = "#4B5563";
+
+          // --- Monthly (Column) ---
+          const monthlyOptions = {
+            backgroundColor: "transparent",
+            animationEnabled: true,
+            axisX: {
+              labelFontColor: "#9CA3AF",
+            },
+            axisY: {
+              labelFontColor: "#9CA3AF",
+              gridColor: "rgba(255,255,255,0.06)",
+              interval:1,
+              gridThickness: 1,
+
+            },
+            data: [{
+              type: "column",
+              indexLabelFontColor: "#E5E7EB",
+              dataPoints: [
+                { label: "Pending", y: m.pending, color: purple },
+                { label: "In-Progress", y: m.inProgress, color: purpleDim },
+                { label: "Done", y: m.done, color: teal },
+              ].map(dp => ({ ...dp, y: Number.isFinite(dp.y) ? dp.y : 0 }))
+            }]
+          };
+
+          return (
+            <div className="space-y-6">
+              <div className="w-full h-56">
+                <CanvasJSChart options={monthlyOptions} />
+              </div>
+
+            </div>
+          );
+        })()}
       </div>
 
       {/* Weather */}
@@ -122,10 +221,10 @@ export default function Dashboard() {
         <p className="text-sm text-gray-400">Feature coming soon</p>
       </div>
 
-      {/* Summary */}
+      {/* Upcoming2 */}
       <div className="relative rounded-xl bg-[#1c1c1e] p-6 card--border-glow text-white md:col-span-2">
-        <h2 className="text-xl font-bold mb-2">tinqs Summary</h2>
-        <p className="text-sm text-gray-400">Overview of tasks</p>
+        <h2 className="text-xl font-bold mb-2">Upcoming2</h2>
+        <p className="text-sm text-gray-400">Tasks scheduled next week2</p>
       </div>
 
       {/* Upcoming */}
@@ -134,7 +233,7 @@ export default function Dashboard() {
         <p className="text-sm text-gray-400">Tasks scheduled next week</p>
       </div>
 
-      {/* Modal for All Tinqs */}
+      {/* Modal: All Tinqs */}
       {showAllTinqs && (
         <div className="fixed inset-0 bg-black bg-opacity-70 flex items-center justify-center z-50">
           <div className="bg-[#1c1c1e] p-6 rounded-xl max-w-2xl w-full max-h-[80vh] overflow-y-auto text-white border border-purple-600 shadow-lg">
@@ -186,7 +285,7 @@ export default function Dashboard() {
                     <Link to={`/tinq/${task._id}`}>
                       <p className="font-semibold">{task.title}</p>
                       <p className="text-sm text-gray-400">
-                        {new Date(task.date).toLocaleDateString()} | {task.status}
+                        {(task.date && !isNaN(new Date(task.date))) ? new Date(task.date).toLocaleDateString() : "—"} | {task.status} | {task.category?.name || "No category"}
                       </p>
                     </Link>
                   </li>

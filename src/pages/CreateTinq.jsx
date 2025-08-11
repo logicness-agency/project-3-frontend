@@ -2,6 +2,7 @@ import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import axios from "axios";
 import Aurora from "../components/Aurora/Aurora";
+import CategoryManager from "../components/CategoryManager";
 
 const API_URL = process.env.REACT_APP_API_URL;
 
@@ -11,6 +12,7 @@ export default function CreateTinq() {
 
   const [categories, setCategories] = useState([]);
   const [newCategory, setNewCategory] = useState("");
+  const [showCatManager, setShowCatManager] = useState(false);
 
   const [formState, setFormState] = useState({
     title: "",
@@ -31,7 +33,7 @@ export default function CreateTinq() {
       .catch((err) => {
         console.error("Error loading categories:", err.response?.data || err.message);
       });
-  }, [storedToken]);
+  }, [storedToken, showCatManager]);
 
   const handleCategoryCreate = () => {
     if (!newCategory.trim()) return;
@@ -68,9 +70,7 @@ export default function CreateTinq() {
       .post(`${API_URL}/tasks`, formState, {
         headers: { Authorization: `Bearer ${storedToken}` },
       })
-      .then((res) => {
-        navigate("/dashboard");
-      })
+      .then(() => navigate("/dashboard"))
       .catch((err) => {
         console.error("Error creating tinq:", err.response?.data || err.message);
       });
@@ -88,7 +88,9 @@ export default function CreateTinq() {
       </div>
 
       <div className="relative z-10 bg-[#1c1c1e] p-8 rounded-xl shadow-md w-full max-w-2xl card--border-glow text-white">
-        <h2 className="text-2xl font-bold mb-6">Create New tinq</h2>
+        <div className="flex items-center justify-between mb-6">
+          <h2 className="text-2xl font-bold">Create New tinq</h2>
+        </div>
 
         <form onSubmit={handleSubmit} className="grid grid-cols-1 gap-4">
           <input
@@ -138,25 +140,34 @@ export default function CreateTinq() {
             <option value="high">High</option>
           </select>
 
-          <select
-            name="category"
-            value={formState.category}
-            onChange={handleChange}
-            className="rounded-full p-2 bg-[#2a2a2e] border border-gray-600 text-white"
-          >
-            <option value="">-- Select Category --</option>
-            {categories.map((cat) => (
-              <option key={cat._id} value={cat._id}>
-                {cat.name}
-              </option>
-            ))}
-          </select>
+          <div className="flex gap-2">
+            <select
+              name="category"
+              value={formState.category}
+              onChange={handleChange}
+              className="flex-1 rounded-full p-2 bg-[#2a2a2e] border border-gray-600 text-white"
+            >
+              <option value="">-- No category --</option>
+              {categories.map((cat) => (
+                <option key={cat._id} value={cat._id}>
+                  {cat.name}
+                </option>
+              ))}
+            </select>
+            <button
+              type="button"
+              onClick={() => setShowCatManager(true)}
+              className="px-3 py-2 rounded-full bg-[#2a2a2e] border border-gray-600 hover:bg-[#343438]"
+              title="Open category manager"
+            >
+              ⚙️
+            </button>
+          </div>
 
-          {/* Add category field */}
           <div className="flex items-center gap-2">
             <input
               type="text"
-              placeholder="New category"
+              placeholder="Quick add category"
               value={newCategory}
               onChange={(e) => setNewCategory(e.target.value)}
               className="rounded-full p-2 bg-[#2a2a2e] border border-gray-600 text-white flex-1"
@@ -178,6 +189,9 @@ export default function CreateTinq() {
           </button>
         </form>
       </div>
+
+      {/* shared manager */}
+      <CategoryManager open={showCatManager} onClose={() => setShowCatManager(false)} />
     </div>
   );
 }
