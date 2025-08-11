@@ -152,68 +152,66 @@ export default function Dashboard() {
       </div>
 
       {/* Progress */}
-      <div className="relative rounded-xl bg-[#1c1c1e] p-6 card--border-glow text-white md:col-span-1">
-        <h2 className="text-xl font-bold mb-2">Monthly Progress</h2>
+<div className="relative rounded-xl bg-[#1c1c1e] p-6 pb-8 card--border-glow text-white md:col-span-1">
+  <h2 className="text-xl font-bold mb-4">Monthly Progress</h2>
 
-        {(() => {
-          // --- helpers ---
-          const sameMonth = (d1, d2) =>
-            d1.getFullYear() === d2.getFullYear() && d1.getMonth() === d2.getMonth();
+  {(() => {
+    // helpers
+    const sameMonth = (d1, d2) =>
+      d1.getFullYear() === d2.getFullYear() && d1.getMonth() === d2.getMonth();
 
-          const now = new Date();
-          const monthly = tasks.filter(t => t.date && sameMonth(new Date(t.date), now));
-          const total = tasks.length;
+    const now = new Date();
+    const monthly = tasks.filter(t => t.date && sameMonth(new Date(t.date), now));
 
-          const countByStatus = list => ({
-            pending: list.filter(t => t.status === "pending").length,
-            inProgress: list.filter(t => t.status === "in-progress").length,
-            done: list.filter(t => t.status === "done").length,
-          });
+    const countByStatus = list => ({
+      pending: list.filter(t => t.status === "pending").length,
+      inProgress: list.filter(t => t.status === "in-progress").length,
+      done: list.filter(t => t.status === "done").length,
+    });
 
-          const m = countByStatus(monthly);
-          const o = countByStatus(tasks);
+    const m = countByStatus(monthly);
 
+    const purple = "#A855F7";
+    const purpleDim = "#7C3AED";
+    const teal = "#10B981";
 
-          const purple = "#A855F7";
-          const purpleDim = "#527affff";
-          const teal = "#10B981";
-          const grayBar = "#4B5563";
+    const monthlyOptions = {
+      backgroundColor: "transparent",
+      animationEnabled: true,
+      axisX: {
+        labelFontColor: "#E5E7EB",
+        labelFontSize: 14,
+        margin: 10,              
+      },
+      axisY: {
+        labelFontColor: "#E5E7EB",
+        labelFontSize: 12,
+        interval: 1,
+        gridColor: "rgba(255,255,255,0.06)",
+        gridThickness: 1,
+      },
+      data: [{
+        type: "column",
+        indexLabelFontColor: "#E5E7EB",
+        indexLabelFontSize: 12,
+        dataPoints: [
+          { label: "Pending",     y: m.pending,    color: purple     },
+          { label: "In-Progress", y: m.inProgress, color: purpleDim  },
+          { label: "Done",        y: m.done,       color: teal       },
+        ].map(dp => ({ ...dp, y: Number.isFinite(dp.y) ? dp.y : 0 }))
+      }]
+    };
 
-          // --- Monthly (Column) ---
-          const monthlyOptions = {
-            backgroundColor: "transparent",
-            animationEnabled: true,
-            axisX: {
-              labelFontColor: "#9CA3AF",
-            },
-            axisY: {
-              labelFontColor: "#9CA3AF",
-              gridColor: "rgba(255,255,255,0.06)",
-              interval:1,
-              gridThickness: 1,
-
-            },
-            data: [{
-              type: "column",
-              indexLabelFontColor: "#E5E7EB",
-              dataPoints: [
-                { label: "Pending", y: m.pending, color: purple },
-                { label: "In-Progress", y: m.inProgress, color: purpleDim },
-                { label: "Done", y: m.done, color: teal },
-              ].map(dp => ({ ...dp, y: Number.isFinite(dp.y) ? dp.y : 0 }))
-            }]
-          };
-
-          return (
-            <div className="space-y-6">
-              <div className="w-full h-56">
-                <CanvasJSChart options={monthlyOptions} />
-              </div>
-
-            </div>
-          );
-        })()}
+    return (
+      <div className="w-full">
+        <CanvasJSChart
+          options={monthlyOptions}
+          containerProps={{ width: "100%", height: "320px" }}
+        />
       </div>
+    );
+  })()}
+</div>
 
       {/* Weather */}
       <div className="relative rounded-xl bg-[#1c1c1e] p-6 card--border-glow text-white md:col-span-1">
