@@ -64,6 +64,20 @@ export default function TinqDetails() {
       .catch((err) => console.error("Error saving changes:", err.response?.data || err.message));
   };
 
+  // ----- Tinq deletion -----
+  const handleDelete = () => {
+    if (!window.confirm(`Are you sure you want to delete "${tinq.title}"? This action cannot be undone.`)) {
+      return;
+    }
+
+    axios
+      .delete(`${API_URL}/tasks/${taskId}`, authHeader)
+      .then(() => {
+        navigate("/dashboard");
+      })
+      .catch((err) => console.error("Error deleting tinq:", err.response?.data || err.message));
+  };
+
   // ----- Category management -----
   const handleCreateCategory = () => {
     const name = newCategory.trim();
@@ -126,7 +140,16 @@ export default function TinqDetails() {
       </div>
 
       <div className="relative z-10 max-w-2xl w-full bg-[#1c1c1e] p-6 rounded-xl shadow-md border border-purple-600">
-        <h2 className="text-2xl font-bold mb-4">Edit tinq</h2>
+        <div className="flex justify-between items-center mb-4">
+          <h2 className="text-2xl font-bold">Edit tinq</h2>
+          <button
+            onClick={handleDelete}
+            className="bg-red-600 hover:bg-red-700 text-white px-4 py-2 rounded-full transition text-sm"
+            title="Delete this tinq"
+          >
+            Delete tinq
+          </button>
+        </div>
 
         {/* --- Edit form --- */}
         <label className="block mb-2 text-sm text-gray-300">Title</label>
