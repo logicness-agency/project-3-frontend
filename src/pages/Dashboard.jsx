@@ -78,163 +78,361 @@ export default function Dashboard() {
       return categoryMatch && statusMatch;
     });
   }, [tasks, filterCategory, filterStatus]);
+  
+  const todayTasks = useMemo(() => {
+    const now = new Date();
+    return tasks
+      .filter((t) => {
+        const d = toLocalDate(t.date);
+        return (
+          d &&
+          d.getFullYear() === now.getFullYear() &&
+          d.getMonth() === now.getMonth() &&
+          d.getDate() === now.getDate()
+        );
+      })
+      .sort((a, b) => new Date(a.date) - new Date(b.date));
+  }, [tasks]);
 
   if (isLoading) return <p>Loading...</p>;
 
   return (
-    <div className="grid grid-cols-1 md:grid-cols-4 gap-6 pt-24 px-4 p-8 min-h-screen bg-dark bento-section">
-
-      {/* Today's tinqs */}
-      <div className="relative rounded-xl bg-[#1c1c1e] p-6 card--border-glow text-white md:col-span-1">
-        <h2 className="text-xl font-bold mb-2">Today's tinqs</h2>
-        <p className="text-sm text-gray-400">Feature coming soon</p>
-      </div>
-
-      {/* This Week */}
-      <div className="relative rounded-xl bg-[#1c1c1e] p-6 card--border-glow text-white md:col-span-2 md:row-span-2 flex flex-col">
-        <div className="flex justify-between items-center mb-2">
-          <h2 className="text-xl font-bold">This Week</h2>
-          <Link
-            to="/add-tinq"
-            className="bg-purple-600 hover:bg-purple-700 text-white text-sm font-medium px-4 py-2 rounded-full transition"
-          >
-            + Add tinq
-          </Link>
-        </div>
-        <p className="text-xs text-gray-400 mb-4">
-          {weekStart.toLocaleDateString()} — {weekEnd.toLocaleDateString()}
-        </p>
-
-        <div className="grid grid-cols-7 gap-2 flex-1">
-          {WEEK_DAYS.map((day) => (
-            <div key={day} className="bg-[#2a2a2d] rounded-lg p-3 flex flex-col h-full overflow-hidden">
-              <div className="font-semibold text-purple-300 mb-2">{day}</div>
-              <ul className="text-xs space-y-1 overflow-y-auto flex-1">
-                {tasksInWeek
-                  .filter((t) => {
-                    const d = toLocalDate(t.date);
-                    return d && weekdayNameEn(d) === day;
-                  })
-                  .map((t) => (
-                    <li key={t._id}>
-                      <Link
-                        to={`/tinq/${t._id}`}
-                        className="block bg-purple-800/30 px-2 py-1 rounded-full text-white truncate hover:bg-purple-700 transition"
-                        title={t.title}
-                      >
-                        {t.title}
-                      </Link>
-                    </li>
-                  ))}
-
-                {tasksInWeek.filter((t) => {
-                  const d = toLocalDate(t.date);
-                  return d && weekdayNameEn(d) === day;
-                }).length === 0 && (
-                    <li className="text-gray-500 italic">No tinqs</li>
-                  )}
+    <div className="pt-24 px-4 p-8 min-h-screen bg-dark">
+      {/* Mobile Layout */}
+      <div className="block md:hidden space-y-4">
+        {/* Today's tinqs - Mobile */}
+        <div className="relative rounded-xl bg-[#1c1c1e] p-4 card--border-glow text-white h-48">
+          <h2 className="text-lg font-bold mb-2">Today's tinqs</h2>
+          <div className="overflow-y-auto h-36">
+            {todayTasks.length === 0 ? (
+              <p className="text-sm text-gray-400">No tinqs today.</p>
+            ) : (
+              <ul className="space-y-2">
+                {todayTasks.map((t) => (
+                  <li key={t._id}>
+                    <Link
+                      to={`/tinq/${t._id}`}
+                      className="block bg-[#2a2a2e] border border-gray-700 rounded-lg px-3 py-2 hover:bg-[#34343a] transition"
+                      title={t.title}
+                    >
+                      <p className="font-semibold text-purple-300 truncate text-sm">{t.title}</p>
+                      <p className="text-xs text-gray-400">
+                        {t.category?.name || "No category"} • {t.status}
+                      </p>
+                    </Link>
+                  </li>
+                ))}
               </ul>
-            </div>
-          ))}
+            )}
+          </div>
+        </div>
+
+        {/* All my tinqs - Mobile */}
+        <div className="relative rounded-xl bg-[#1c1c1e] p-4 card--border-glow text-white h-32 flex flex-col items-center justify-center text-center">
+          <h2 className="text-lg font-bold mb-2">All my tinqs</h2>
+          <button
+            onClick={() => setShowAllTinqs(true)}
+            className="text-3xl font-bold text-purple-400 hover:text-purple-300 transition"
+          >
+            {tasks.length}
+          </button>
+          <p className="text-xs text-gray-400 mt-1">Click to view all</p>
+        </div>
+
+        {/* This Week - Mobile */}
+        <div className="relative rounded-xl bg-[#1c1c1e] p-4 card--border-glow text-white h-96">
+          <div className="flex justify-between items-center mb-2">
+            <h2 className="text-lg font-bold">This Week</h2>
+            <Link
+              to="/add-tinq"
+              className="bg-purple-600 hover:bg-purple-700 text-white text-xs font-medium px-3 py-1 rounded-full transition"
+            >
+              + Add
+            </Link>
+          </div>
+          <p className="text-xs text-gray-400 mb-3">
+            {weekStart.toLocaleDateString()} — {weekEnd.toLocaleDateString()}
+          </p>
+
+          <div className="grid grid-cols-2 gap-2 h-80">
+            {WEEK_DAYS.map((day) => (
+              <div key={day} className="bg-[#2a2a2d] rounded-lg p-2 flex flex-col h-full overflow-hidden">
+                <div className="font-semibold text-purple-300 mb-1 text-xs">{day.slice(0, 3)}</div>
+                <div className="overflow-y-auto flex-1">
+                  <ul className="text-xs space-y-1">
+                    {tasksInWeek
+                      .filter((t) => {
+                        const d = toLocalDate(t.date);
+                        return d && weekdayNameEn(d) === day;
+                      })
+                      .map((t) => (
+                        <li key={t._id}>
+                          <Link
+                            to={`/tinq/${t._id}`}
+                            className="block bg-purple-800/30 px-1 py-1 rounded-full text-white truncate hover:bg-purple-700 transition text-xs"
+                            title={t.title}
+                          >
+                            {t.title}
+                          </Link>
+                        </li>
+                      ))}
+
+                    {tasksInWeek.filter((t) => {
+                      const d = toLocalDate(t.date);
+                      return d && weekdayNameEn(d) === day;
+                    }).length === 0 && (
+                        <li className="text-gray-500 italic text-xs">No tinqs</li>
+                      )}
+                  </ul>
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+
+        {/* Progress - Mobile */}
+        <div className="relative rounded-xl bg-[#1c1c1e] p-4 card--border-glow text-white h-80">
+          <h2 className="text-lg font-bold mb-3">Monthly Progress</h2>
+          {(() => {
+            const sameMonth = (d1, d2) =>
+              d1.getFullYear() === d2.getFullYear() && d1.getMonth() === d2.getMonth();
+
+            const now = new Date();
+            const monthly = tasks.filter(t => t.date && sameMonth(new Date(t.date), now));
+
+            const countByStatus = list => ({
+              pending: list.filter(t => t.status === "pending").length,
+              inProgress: list.filter(t => t.status === "in-progress").length,
+              done: list.filter(t => t.status === "done").length,
+            });
+
+            const m = countByStatus(monthly);
+
+            const purple = "#A855F7";
+            const purpleDim = "#7C3AED";
+            const teal = "#10B981";
+
+            const monthlyOptions = {
+              backgroundColor: "transparent",
+              animationEnabled: true,
+              axisX: {
+                labelFontColor: "#E5E7EB",
+                labelFontSize: 12,
+                margin: 8,
+              },
+              axisY: {
+                labelFontColor: "#E5E7EB",
+                labelFontSize: 10,
+                interval: 1,
+                gridColor: "rgba(255,255,255,0.06)",
+                gridThickness: 1,
+              },
+              data: [{
+                type: "column",
+                indexLabelFontColor: "#E5E7EB",
+                indexLabelFontSize: 10,
+                dataPoints: [
+                  { label: "Pending", y: m.pending, color: purple },
+                  { label: "Progress", y: m.inProgress, color: purpleDim },
+                  { label: "Done", y: m.done, color: teal },
+                ].map(dp => ({ ...dp, y: Number.isFinite(dp.y) ? dp.y : 0 }))
+              }]
+            };
+
+            return (
+              <div className="w-full h-60">
+                <CanvasJSChart
+                  options={monthlyOptions}
+                  containerProps={{ width: "100%", height: "240px" }}
+                />
+              </div>
+            );
+          })()}
+        </div>
+
+        {/* Weather - Mobile */}
+        <div className="relative rounded-xl bg-[#1c1c1e] p-4 card--border-glow text-white h-24">
+          <h2 className="text-lg font-bold mb-2">Weather</h2>
+          <p className="text-sm text-gray-400">Feature coming soon</p>
         </div>
       </div>
 
-      {/* All my tinqs (opens modal) */}
-      <div className="relative rounded-xl bg-[#1c1c1e] p-6 card--border-glow text-white md:col-span-1 flex flex-col items-center justify-center text-center">
-        <h2 className="text-xl font-bold mb-2">All my tinqs</h2>
-        <button
-          onClick={() => setShowAllTinqs(true)}
-          className="text-5xl font-bold text-purple-400 hover:text-purple-300 transition"
-        >
-          {tasks.length}
-        </button>
-        <p className="text-sm text-gray-400 mt-2">Click to view all</p>
-      </div>
+      {/* Desktop Layout */}
+      <div className="hidden md:grid md:grid-cols-4 gap-6 bento-section">
+        {/* Today's tinqs */}
+        <div className="relative rounded-xl bg-[#1c1c1e] p-6 card--border-glow text-white md:col-span-1 h-80">
+          <h2 className="text-xl font-bold mb-2">Today's tinqs</h2>
+          <div className="overflow-y-auto h-60">
+            {todayTasks.length === 0 ? (
+              <p className="text-sm text-gray-400">No tinqs today.</p>
+            ) : (
+              <ul className="space-y-2">
+                {todayTasks.map((t) => (
+                  <li key={t._id}>
+                    <Link
+                      to={`/tinq/${t._id}`}
+                      className="block bg-[#2a2a2e] border border-gray-700 rounded-lg px-3 py-2 hover:bg-[#34343a] transition"
+                      title={t.title}
+                    >
+                      <p className="font-semibold text-purple-300 truncate">{t.title}</p>
+                      <p className="text-xs text-gray-400">
+                        {t.category?.name || "No category"} • {t.status}
+                      </p>
+                    </Link>
+                  </li>
+                ))}
+              </ul>
+            )}
+          </div>
+        </div>
 
-      {/* Progress */}
-      <div className="relative rounded-xl bg-[#1c1c1e] p-6 pb-8 card--border-glow text-white md:col-span-1">
-        <h2 className="text-xl font-bold mb-4">Monthly Progress</h2>
+        {/* This Week */}
+        <div className="relative rounded-xl bg-[#1c1c1e] p-6 card--border-glow text-white md:col-span-2 md:row-span-2 h-[688px] flex flex-col">
+          <div className="flex justify-between items-center mb-2">
+            <h2 className="text-xl font-bold">This Week</h2>
+            <Link
+              to="/add-tinq"
+              className="bg-purple-600 hover:bg-purple-700 text-white text-sm font-medium px-4 py-2 rounded-full transition"
+            >
+              + Add tinq
+            </Link>
+          </div>
+          <p className="text-xs text-gray-400 mb-4">
+            {weekStart.toLocaleDateString()} — {weekEnd.toLocaleDateString()}
+          </p>
 
-        {(() => {
-          // helpers
-          const sameMonth = (d1, d2) =>
-            d1.getFullYear() === d2.getFullYear() && d1.getMonth() === d2.getMonth();
+          <div className="grid grid-cols-7 gap-2 flex-1 h-[592px]">
+            {WEEK_DAYS.map((day) => (
+              <div key={day} className="bg-[#2a2a2d] rounded-lg p-3 flex flex-col h-full overflow-hidden">
+                <div className="font-semibold text-purple-300 mb-2">{day}</div>
+                <div className="overflow-y-auto flex-1">
+                  <ul className="text-xs space-y-1">
+                    {tasksInWeek
+                      .filter((t) => {
+                        const d = toLocalDate(t.date);
+                        return d && weekdayNameEn(d) === day;
+                      })
+                      .map((t) => (
+                        <li key={t._id}>
+                          <Link
+                            to={`/tinq/${t._id}`}
+                            className="block bg-purple-800/30 px-2 py-1 rounded-full text-white truncate hover:bg-purple-700 transition"
+                            title={t.title}
+                          >
+                            {t.title}
+                          </Link>
+                        </li>
+                      ))}
 
-          const now = new Date();
-          const monthly = tasks.filter(t => t.date && sameMonth(new Date(t.date), now));
+                    {tasksInWeek.filter((t) => {
+                      const d = toLocalDate(t.date);
+                      return d && weekdayNameEn(d) === day;
+                    }).length === 0 && (
+                        <li className="text-gray-500 italic">No tinqs</li>
+                      )}
+                  </ul>
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
 
-          const countByStatus = list => ({
-            pending: list.filter(t => t.status === "pending").length,
-            inProgress: list.filter(t => t.status === "in-progress").length,
-            done: list.filter(t => t.status === "done").length,
-          });
+        {/* All my tinqs */}
+        <div className="relative rounded-xl bg-[#1c1c1e] p-6 card--border-glow text-white md:col-span-1 h-80 flex flex-col items-center justify-center text-center">
+          <h2 className="text-xl font-bold mb-2">All my tinqs</h2>
+          <button
+            onClick={() => setShowAllTinqs(true)}
+            className="text-5xl font-bold text-purple-400 hover:text-purple-300 transition"
+          >
+            {tasks.length}
+          </button>
+          <p className="text-sm text-gray-400 mt-2">Click to view all</p>
+        </div>
 
-          const m = countByStatus(monthly);
+        {/* Progress */}
+        <div className="relative rounded-xl bg-[#1c1c1e] p-6 pb-8 card--border-glow text-white md:col-span-1 h-95">
+          <h2 className="text-xl font-bold mb-4">Monthly Progress</h2>
 
-          const purple = "#A855F7";
-          const purpleDim = "#7C3AED";
-          const teal = "#10B981";
+          {(() => {
+            const sameMonth = (d1, d2) =>
+              d1.getFullYear() === d2.getFullYear() && d1.getMonth() === d2.getMonth();
 
-          const monthlyOptions = {
-            backgroundColor: "transparent",
-            animationEnabled: true,
-            axisX: {
-              labelFontColor: "#E5E7EB",
-              labelFontSize: 14,
-              margin: 10,
-            },
-            axisY: {
-              labelFontColor: "#E5E7EB",
-              labelFontSize: 12,
-              interval: 1,
-              gridColor: "rgba(255,255,255,0.06)",
-              gridThickness: 1,
-            },
-            data: [{
-              type: "column",
-              indexLabelFontColor: "#E5E7EB",
-              indexLabelFontSize: 12,
-              dataPoints: [
-                { label: "Pending", y: m.pending, color: purple },
-                { label: "In-Progress", y: m.inProgress, color: purpleDim },
-                { label: "Done", y: m.done, color: teal },
-              ].map(dp => ({ ...dp, y: Number.isFinite(dp.y) ? dp.y : 0 }))
-            }]
-          };
+            const now = new Date();
+            const monthly = tasks.filter(t => t.date && sameMonth(new Date(t.date), now));
 
-          return (
-            <div className="w-full">
-              <CanvasJSChart
-                options={monthlyOptions}
-                containerProps={{ width: "100%", height: "320px" }}
-              />
-            </div>
-          );
-        })()}
-      </div>
+            const countByStatus = list => ({
+              pending: list.filter(t => t.status === "pending").length,
+              inProgress: list.filter(t => t.status === "in-progress").length,
+              done: list.filter(t => t.status === "done").length,
+            });
 
-      {/* Weather */}
-      <div className="relative rounded-xl bg-[#1c1c1e] p-6 card--border-glow text-white md:col-span-1">
-        <h2 className="text-xl font-bold mb-2">Weather</h2>
-        <p className="text-sm text-gray-400">Feature coming soon</p>
-      </div>
+            const m = countByStatus(monthly);
 
-      {/* Upcoming2 */}
-      <div className="relative rounded-xl bg-[#1c1c1e] p-6 card--border-glow text-white md:col-span-2">
-        <h2 className="text-xl font-bold mb-2">Upcoming2</h2>
-        <p className="text-sm text-gray-400">Tasks scheduled next week2</p>
-      </div>
+            const purple = "#A855F7";
+            const purpleDim = "#7C3AED";
+            const teal = "#10B981";
 
-      {/* Upcoming */}
-      <div className="relative rounded-xl bg-[#1c1c1e] p-6 card--border-glow text-white md:col-span-2">
-        <h2 className="text-xl font-bold mb-2">Upcoming</h2>
-        <p className="text-sm text-gray-400">Tasks scheduled next week</p>
+            const monthlyOptions = {
+              backgroundColor: "transparent",
+              animationEnabled: true,
+              axisX: {
+                labelFontColor: "#E5E7EB",
+                labelFontSize: 14,
+                margin: 10,
+              },
+              axisY: {
+                labelFontColor: "#E5E7EB",
+                labelFontSize: 12,
+                interval: 1,
+                gridColor: "rgba(255,255,255,0.06)",
+                gridThickness: 1,
+              },
+              data: [{
+                type: "column",
+                indexLabelFontColor: "#E5E7EB",
+                indexLabelFontSize: 12,
+                dataPoints: [
+                  { label: "Pending", y: m.pending, color: purple },
+                  { label: "In-Progress", y: m.inProgress, color: purpleDim },
+                  { label: "Done", y: m.done, color: teal },
+                ].map(dp => ({ ...dp, y: Number.isFinite(dp.y) ? dp.y : 0 }))
+              }]
+            };
+
+            return (
+              <div className="w-full h-60">
+                <CanvasJSChart
+                  options={monthlyOptions}
+                  containerProps={{ width: "100%", height: "240px" }}
+                />
+              </div>
+            );
+          })()}
+        </div>
+
+        {/* Weather */}
+        <div className="relative rounded-xl bg-[#1c1c1e] p-6 card--border-glow text-white md:col-span-1 h-95">
+          <h2 className="text-xl font-bold mb-2">Weather</h2>
+          <p className="text-sm text-gray-400">Feature coming soon</p>
+        </div>
+
+        {/* Upcoming2 */}
+        <div className="relative rounded-xl bg-[#1c1c1e] p-6 card--border-glow text-white md:col-span-2 h-55">
+          <h2 className="text-xl font-bold mb-2">Upcoming2</h2>
+          <p className="text-sm text-gray-400">Tasks scheduled next week2</p>
+        </div>
+
+        {/* Upcoming */}
+        <div className="relative rounded-xl bg-[#1c1c1e] p-6 card--border-glow text-white md:col-span-2 h-60">
+          <h2 className="text-xl font-bold mb-2">Upcoming</h2>
+          <p className="text-sm text-gray-400">Tasks scheduled next week</p>
+        </div>
       </div>
 
       {/* Modal: All Tinqs */}
       {showAllTinqs && (
         <div className="fixed inset-0 bg-black bg-opacity-70 flex items-center justify-center z-50">
-          <div className="bg-[#1c1c1e] p-6 rounded-xl max-w-2xl w-full max-h-[80vh] overflow-y-auto text-white border border-purple-600 shadow-lg">
+          <div className="bg-[#1c1c1e] p-6 rounded-xl max-w-2xl w-full max-h-[80vh] overflow-y-auto text-white border border-purple-600 shadow-lg mx-4">
             <div className="flex justify-between items-center mb-4">
               <h2 className="text-xl font-bold">All tinqs</h2>
               <button
@@ -246,7 +444,7 @@ export default function Dashboard() {
             </div>
 
             {/* Filters */}
-            <div className="flex gap-4 mb-4">
+            <div className="flex flex-col sm:flex-row gap-4 mb-4">
               <select
                 value={filterCategory}
                 onChange={(e) => setFilterCategory(e.target.value)}
@@ -275,11 +473,11 @@ export default function Dashboard() {
             {/* Task List */}
             <ul className="space-y-2">
               {filteredTasks.length > 0 ? (
-                [...filteredTasks] // copy, not to change the original
+                [...filteredTasks]
                   .sort((a, b) => {
                     const dateA = a.date ? new Date(a.date) : new Date(0);
                     const dateB = b.date ? new Date(b.date) : new Date(0);
-                    return dateB - dateA; // newest first
+                    return dateB - dateA;
                   })
                   .map((task) => (
                     <li
