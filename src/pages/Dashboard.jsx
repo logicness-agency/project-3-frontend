@@ -78,7 +78,7 @@ export default function Dashboard() {
       return categoryMatch && statusMatch;
     });
   }, [tasks, filterCategory, filterStatus]);
-  
+
   const todayTasks = useMemo(() => {
     const now = new Date();
     return tasks
@@ -97,9 +97,9 @@ export default function Dashboard() {
   if (isLoading) return <p>Loading...</p>;
 
   return (
-    <div className="pt-24 px-4 p-8 min-h-screen bg-dark">
-      {/* Mobile Layout */}
-      <div className="block md:hidden space-y-4">
+    <div className="pt-20 px-4 p-6 min-h-screen bg-dark">
+      {/* Mobile Layout (unchanged for mobile) */}
+      <div className="block lg:hidden space-y-4">
         {/* Today's tinqs - Mobile */}
         <div className="relative rounded-xl bg-[#1c1c1e] p-4 card--border-glow text-white h-48">
           <h2 className="text-lg font-bold mb-2">Today's tinqs</h2>
@@ -257,12 +257,12 @@ export default function Dashboard() {
         </div>
       </div>
 
-      {/* Desktop Layout */}
-      <div className="hidden md:grid md:grid-cols-4 gap-6 bento-section">
-        {/* Today's tinqs */}
-        <div className="relative rounded-xl bg-[#1c1c1e] p-6 card--border-glow text-white md:col-span-1 h-80">
+      {/* Desktop/Laptop Layout - Fixed für alle Screens */}
+      <div className="hidden md:grid md:grid-cols-4 gap-4 bento-section">
+        {/* Today's tinqs - Standard */}
+        <div className="relative rounded-xl bg-[#1c1c1e] p-4 card--border-glow text-white md:col-span-1 h-72">
           <h2 className="text-xl font-bold mb-2">Today's tinqs</h2>
-          <div className="overflow-y-auto h-60">
+          <div className="overflow-y-auto h-56">
             {todayTasks.length === 0 ? (
               <p className="text-sm text-gray-400">No tinqs today.</p>
             ) : (
@@ -274,7 +274,7 @@ export default function Dashboard() {
                       className="block bg-[#2a2a2e] border border-gray-700 rounded-lg px-3 py-2 hover:bg-[#34343a] transition"
                       title={t.title}
                     >
-                      <p className="font-semibold text-purple-300 truncate">{t.title}</p>
+                      <p className="font-semibold text-purple-300 truncate text-sm">{t.title}</p>
                       <p className="text-xs text-gray-400">
                         {t.category?.name || "No category"} • {t.status}
                       </p>
@@ -286,8 +286,8 @@ export default function Dashboard() {
           </div>
         </div>
 
-        {/* This Week */}
-        <div className="relative rounded-xl bg-[#1c1c1e] p-6 card--border-glow text-white md:col-span-2 md:row-span-2 h-[688px] flex flex-col">
+        {/* This Week - Standard Size */}
+        <div className="relative rounded-xl bg-[#1c1c1e] p-4 card--border-glow text-white md:col-span-2 md:row-span-2 h-[600px] flex flex-col">
           <div className="flex justify-between items-center mb-2">
             <h2 className="text-xl font-bold">This Week</h2>
             <Link
@@ -297,11 +297,11 @@ export default function Dashboard() {
               + Add tinq
             </Link>
           </div>
-          <p className="text-xs text-gray-400 mb-4">
+          <p className="text-xs text-gray-400 mb-3">
             {weekStart.toLocaleDateString()} — {weekEnd.toLocaleDateString()}
           </p>
 
-          <div className="grid grid-cols-7 gap-2 flex-1 h-[592px]">
+          <div className="grid grid-cols-7 gap-2 flex-1 h-[520px]">
             {WEEK_DAYS.map((day) => (
               <div key={day} className="bg-[#2a2a2d] rounded-lg p-3 flex flex-col h-full overflow-hidden">
                 <div className="font-semibold text-purple-300 mb-2">{day}</div>
@@ -316,7 +316,7 @@ export default function Dashboard() {
                         <li key={t._id}>
                           <Link
                             to={`/tinq/${t._id}`}
-                            className="block bg-purple-800/30 px-2 py-1 rounded-full text-white truncate hover:bg-purple-700 transition"
+                            className="block bg-purple-800/30 px-2 py-1 rounded-full text-white truncate hover:bg-purple-700 transition text-xs"
                             title={t.title}
                           >
                             {t.title}
@@ -328,7 +328,7 @@ export default function Dashboard() {
                       const d = toLocalDate(t.date);
                       return d && weekdayNameEn(d) === day;
                     }).length === 0 && (
-                        <li className="text-gray-500 italic">No tinqs</li>
+                        <li className="text-gray-500 italic text-xs">No tinqs</li>
                       )}
                   </ul>
                 </div>
@@ -337,21 +337,21 @@ export default function Dashboard() {
           </div>
         </div>
 
-        {/* All my tinqs */}
-        <div className="relative rounded-xl bg-[#1c1c1e] p-6 card--border-glow text-white md:col-span-1 h-80 flex flex-col items-center justify-center text-center">
+        {/* All my tinqs - Standard */}
+        <div className="relative rounded-xl bg-[#1c1c1e] p-4 card--border-glow text-white md:col-span-1 h-72 flex flex-col items-center justify-center text-center">
           <h2 className="text-xl font-bold mb-2">All my tinqs</h2>
           <button
             onClick={() => setShowAllTinqs(true)}
-            className="text-5xl font-bold text-purple-400 hover:text-purple-300 transition"
+            className="text-4xl font-bold text-purple-400 hover:text-purple-300 transition"
           >
             {tasks.length}
           </button>
           <p className="text-sm text-gray-400 mt-2">Click to view all</p>
         </div>
 
-        {/* Progress */}
-        <div className="relative rounded-xl bg-[#1c1c1e] p-6 pb-8 card--border-glow text-white md:col-span-1 h-95">
-          <h2 className="text-xl font-bold mb-4">Monthly Progress</h2>
+        {/* Progress - Standard */}
+        <div className="relative rounded-xl bg-[#1c1c1e] p-4 pb-6 card--border-glow text-white md:col-span-1 h-72">
+          <h2 className="text-xl font-bold mb-3">Monthly Progress</h2>
 
           {(() => {
             const sameMonth = (d1, d2) =>
@@ -377,12 +377,12 @@ export default function Dashboard() {
               animationEnabled: true,
               axisX: {
                 labelFontColor: "#E5E7EB",
-                labelFontSize: 14,
-                margin: 10,
+                labelFontSize: 12,
+                margin: 8,
               },
               axisY: {
                 labelFontColor: "#E5E7EB",
-                labelFontSize: 12,
+                labelFontSize: 10,
                 interval: 1,
                 gridColor: "rgba(255,255,255,0.06)",
                 gridThickness: 1,
@@ -390,42 +390,42 @@ export default function Dashboard() {
               data: [{
                 type: "column",
                 indexLabelFontColor: "#E5E7EB",
-                indexLabelFontSize: 12,
+                indexLabelFontSize: 9,
                 dataPoints: [
                   { label: "Pending", y: m.pending, color: purple },
-                  { label: "In-Progress", y: m.inProgress, color: purpleDim },
+                  { label: "Progress", y: m.inProgress, color: purpleDim },
                   { label: "Done", y: m.done, color: teal },
                 ].map(dp => ({ ...dp, y: Number.isFinite(dp.y) ? dp.y : 0 }))
               }]
             };
 
             return (
-              <div className="w-full h-60">
+              <div className="w-full h-52">
                 <CanvasJSChart
                   options={monthlyOptions}
-                  containerProps={{ width: "100%", height: "240px" }}
+                  containerProps={{ width: "100%", height: "208px" }}
                 />
               </div>
             );
           })()}
         </div>
 
-        {/* Weather */}
-        <div className="relative rounded-xl bg-[#1c1c1e] p-6 card--border-glow text-white md:col-span-1 h-95">
+        {/* Weather - Standard */}
+        <div className="relative rounded-xl bg-[#1c1c1e] p-4 card--border-glow text-white md:col-span-1 h-72">
           <h2 className="text-xl font-bold mb-2">Weather</h2>
           <p className="text-sm text-gray-400">Feature coming soon</p>
         </div>
 
-        {/* Upcoming2 */}
-        <div className="relative rounded-xl bg-[#1c1c1e] p-6 card--border-glow text-white md:col-span-2 h-55">
-          <h2 className="text-xl font-bold mb-2">Upcoming2</h2>
-          <p className="text-sm text-gray-400">Tasks scheduled next week2</p>
+        {/* Upcoming - Single row */}
+        <div className="relative rounded-xl bg-[#1c1c1e] p-4 card--border-glow text-white md:col-span-4 h-48">
+          <h2 className="text-xl font-bold mb-2">Upcoming Tasks</h2>
+          <p className="text-sm text-gray-400">Tasks scheduled for next week</p>
         </div>
 
-        {/* Upcoming */}
-        <div className="relative rounded-xl bg-[#1c1c1e] p-6 card--border-glow text-white md:col-span-2 h-60">
-          <h2 className="text-xl font-bold mb-2">Upcoming</h2>
-          <p className="text-sm text-gray-400">Tasks scheduled next week</p>
+        {/* Upcoming - Single row */}
+        <div className="relative rounded-xl bg-[#1c1c1e] p-4 card--border-glow text-white md:col-span-4 h-48">
+          <h2 className="text-xl font-bold mb-2">Upcoming Tasks</h2>
+          <p className="text-sm text-gray-400">Tasks scheduled for next week</p>
         </div>
       </div>
 
