@@ -98,7 +98,7 @@ export default function Dashboard() {
 
   return (
     <div className="pt-20 px-4 p-6 min-h-screen bg-dark">
-      {/* Mobile Layout (unchanged for mobile) */}
+      {/* Mobile Layout */}
       <div className="block lg:hidden space-y-4">
         {/* Today's tinqs - Mobile */}
         <div className="relative rounded-xl bg-[#1c1c1e] p-4 card--border-glow text-white h-48">
@@ -140,7 +140,7 @@ export default function Dashboard() {
         </div>
 
         {/* This Week - Mobile */}
-        <div className="relative rounded-xl bg-[#1c1c1e] p-4 card--border-glow text-white h-96">
+        <div className="relative rounded-xl bg-[#1c1c1e] p-4 card--border-glow text-white">
           <div className="flex justify-between items-center mb-2">
             <h2 className="text-lg font-bold">This Week</h2>
             <Link
@@ -154,11 +154,13 @@ export default function Dashboard() {
             {weekStart.toLocaleDateString()} — {weekEnd.toLocaleDateString()}
           </p>
 
-          <div className="grid grid-cols-2 gap-2 h-80">
+          <div className="grid grid-cols-2 gap-2">
             {WEEK_DAYS.map((day) => (
-              <div key={day} className="bg-[#2a2a2d] rounded-lg p-2 flex flex-col h-full overflow-hidden">
-                <div className="font-semibold text-purple-300 mb-1 text-xs">{day.slice(0, 3)}</div>
-                <div className="overflow-y-auto flex-1">
+              <div key={day} className="bg-[#2a2a2d] rounded-lg p-2 flex flex-col min-h-[120px]">
+                <div className="font-semibold text-purple-300 mb-1 text-xs truncate" title={day}>
+                  {day.slice(0, 3)}
+                </div>
+                <div className="overflow-y-auto flex-1 min-h-0">
                   <ul className="text-xs space-y-1">
                     {tasksInWeek
                       .filter((t) => {
@@ -191,7 +193,7 @@ export default function Dashboard() {
         </div>
 
         {/* Progress - Mobile */}
-        <div className="relative rounded-xl bg-[#1c1c1e] p-4 card--border-glow text-white h-80">
+        <div className="relative rounded-xl bg-[#1c1c1e] p-4 card--border-glow text-white">
           <h2 className="text-lg font-bold mb-3">Monthly Progress</h2>
           {(() => {
             const sameMonth = (d1, d2) =>
@@ -257,7 +259,7 @@ export default function Dashboard() {
         </div>
       </div>
 
-      {/* Desktop/Laptop Layout - Fixed für alle Screens */}
+      {/* Desktop/Laptop Layout */}
       <div className="hidden md:grid md:grid-cols-4 gap-4 bento-section">
         {/* Today's tinqs - Standard */}
         <div className="relative rounded-xl bg-[#1c1c1e] p-4 card--border-glow text-white md:col-span-1 h-72">
@@ -287,7 +289,7 @@ export default function Dashboard() {
         </div>
 
         {/* This Week - Standard Size */}
-        <div className="relative rounded-xl bg-[#1c1c1e] p-4 card--border-glow text-white md:col-span-2 md:row-span-2 h-[600px] flex flex-col">
+        <div className="relative rounded-xl bg-[#1c1c1e] p-4 card--border-glow text-white md:col-span-2 md:row-span-2 flex flex-col">
           <div className="flex justify-between items-center mb-2">
             <h2 className="text-xl font-bold">This Week</h2>
             <Link
@@ -301,11 +303,13 @@ export default function Dashboard() {
             {weekStart.toLocaleDateString()} — {weekEnd.toLocaleDateString()}
           </p>
 
-          <div className="grid grid-cols-7 gap-2 flex-1 h-[520px]">
+          <div className="grid grid-cols-7 gap-2 flex-1 min-h-0">
             {WEEK_DAYS.map((day) => (
-              <div key={day} className="bg-[#2a2a2d] rounded-lg p-3 flex flex-col h-full overflow-hidden">
-                <div className="font-semibold text-purple-300 mb-2">{day}</div>
-                <div className="overflow-y-auto flex-1">
+              <div key={day} className="bg-[#2a2a2d] rounded-lg p-3 flex flex-col min-h-0">
+                <div className="font-semibold text-purple-300 mb-2 text-sm truncate" title={day}>
+                  {day}
+                </div>
+                <div className="overflow-y-auto flex-1 min-h-0">
                   <ul className="text-xs space-y-1">
                     {tasksInWeek
                       .filter((t) => {
@@ -414,12 +418,6 @@ export default function Dashboard() {
         <div className="relative rounded-xl bg-[#1c1c1e] p-4 card--border-glow text-white md:col-span-1 h-72">
           <h2 className="text-xl font-bold mb-2">Weather</h2>
           <p className="text-sm text-gray-400">Feature coming soon</p>
-        </div>
-
-        {/* Upcoming - Single row */}
-        <div className="relative rounded-xl bg-[#1c1c1e] p-4 card--border-glow text-white md:col-span-4 h-48">
-          <h2 className="text-xl font-bold mb-2">Upcoming Tasks</h2>
-          <p className="text-sm text-gray-400">Tasks scheduled for next week</p>
         </div>
 
         {/* Upcoming - Single row */}
