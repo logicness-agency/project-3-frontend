@@ -12,16 +12,12 @@ export default function TinqDetails() {
   const [tinq, setTinq] = useState(null);
   const [editedTinq, setEditedTinq] = useState({});
   const [categories, setCategories] = useState([]);
-
-  // Manage Categories panel state
   const [showCatMgr, setShowCatMgr] = useState(false);
   const [newCategory, setNewCategory] = useState("");
   const [renameId, setRenameId] = useState("");
   const [renameValue, setRenameValue] = useState("");
 
   const storedToken = localStorage.getItem("authToken");
-
-  // Helpers
   const authHeader = { headers: { Authorization: `Bearer ${storedToken}` } };
 
   const loadTinq = () =>
@@ -45,10 +41,8 @@ export default function TinqDetails() {
         console.error("Error loading detail page:", err.response?.data || err.message);
         navigate("/dashboard");
       });
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [taskId]);
 
-  // ----- Tinq editing -----
   const handleInputChange = (e) => {
     const { name, value } = e.target;
     setEditedTinq((prev) => ({ ...prev, [name]: value }));
@@ -64,21 +58,14 @@ export default function TinqDetails() {
       .catch((err) => console.error("Error saving changes:", err.response?.data || err.message));
   };
 
-  // ----- Tinq deletion -----
   const handleDelete = () => {
-    if (!window.confirm(`Are you sure you want to delete "${tinq.title}"? This action cannot be undone.`)) {
-      return;
-    }
-
+    if (!window.confirm(`Delete "${tinq.title}"? This cannot be undone.`)) return;
     axios
       .delete(`${API_URL}/tasks/${taskId}`, authHeader)
-      .then(() => {
-        navigate("/dashboard");
-      })
+      .then(() => navigate("/dashboard"))
       .catch((err) => console.error("Error deleting tinq:", err.response?.data || err.message));
   };
 
-  // ----- Category management -----
   const handleCreateCategory = () => {
     const name = newCategory.trim();
     if (!name) return;
@@ -103,7 +90,6 @@ export default function TinqDetails() {
       .put(`${API_URL}/categories/${renameId}`, { name }, authHeader)
       .then((res) => {
         setCategories((prev) => prev.map((c) => (c._id === res.data._id ? res.data : c)));
-        // If the tinq uses this category, keep its id (unchanged)
         setRenameId("");
         setRenameValue("");
       })
@@ -112,24 +98,19 @@ export default function TinqDetails() {
 
   const handleDeleteCategory = (catId) => {
     if (!window.confirm("Delete this category? Tasks will keep no category.")) return;
-
     axios
       .delete(`${API_URL}/categories/${catId}`, authHeader)
       .then(() => {
-        // Remove locally
         setCategories((prev) => prev.filter((c) => c._id !== catId));
-        // If current tinq used this category, clear it
-        setEditedTinq((prev) =>
-          prev.category === catId ? { ...prev, category: "" } : prev
-        );
+        setEditedTinq((prev) => (prev.category === catId ? { ...prev, category: "" } : prev));
       })
       .catch((err) => console.error("Error deleting category:", err.response?.data || err.message));
   };
 
-  if (!tinq) return <p className="text-white p-6">Loading…</p>;
+  if (!tinq) return <p className="text-white p-4 text-sm">Loading…</p>;
 
   return (
-    <div className="relative min-h-screen bg-dark flex items-center justify-center p-6 text-white overflow-hidden">
+    <div className="relative min-h-screen bg-dark flex items-center justify-center p-4 text-white overflow-hidden">
       <div className="absolute inset-0 z-0">
         <Aurora
           colorStops={["#A855F7", "#B685FF", "#9ABAE5"]}
@@ -139,159 +120,174 @@ export default function TinqDetails() {
         />
       </div>
 
-      <div className="relative z-10 max-w-2xl w-full bg-[#1c1c1e] p-6 rounded-xl shadow-md border border-purple-600">
-        <div className="flex justify-between items-center mb-4">
-          <h2 className="text-2xl font-bold">Edit tinq</h2>
+      <div className="relative z-10 max-w-md w-full bg-[#1c1c1e] p-4 rounded-lg shadow-md border border-purple-600/50">
+        <div className="flex justify-between items-center mb-3">
+          <h2 className="text-xl font-bold">Edit tinq</h2>
           <button
             onClick={handleDelete}
-            className="bg-red-600 hover:bg-red-700 text-white px-4 py-2 rounded-full transition text-sm"
-            title="Delete this tinq"
+            className="bg-red-600 hover:bg-red-700 text-white px-3 py-1 rounded-full transition text-xs"
           >
-            Delete tinq
+            Delete
           </button>
         </div>
 
-        {/* --- Edit form --- */}
-        <label className="block mb-2 text-sm text-gray-300">Title</label>
-        <input
-          type="text"
-          name="title"
-          value={editedTinq.title || ""}
-          onChange={handleInputChange}
-          className="w-full bg-[#2a2a2e] border border-gray-600 rounded-full p-2 mb-4"
-        />
+        {/* Edit form */}
+        <div className="space-y-3">
+          <div>
+            <label className="block mb-1 text-xs text-gray-300">Title</label>
+            <input
+              type="text"
+              name="title"
+              value={editedTinq.title || ""}
+              onChange={handleInputChange}
+              className="w-full bg-[#2a2a2e] border border-gray-600 rounded-full p-2 text-sm"
+            />
+          </div>
 
-        <label className="block mb-2 text-sm text-gray-300">Description</label>
-        <textarea
-          name="description"
-          value={editedTinq.description || ""}
-          onChange={handleInputChange}
-          className="w-full bg-[#2a2a2e] border border-gray-600 rounded-xl p-2 mb-4"
-          rows="3"
-        />
+          <div>
+            <label className="block mb-1 text-xs text-gray-300">Description</label>
+            <textarea
+              name="description"
+              value={editedTinq.description || ""}
+              onChange={handleInputChange}
+              className="w-full bg-[#2a2a2e] border border-gray-600 rounded-full p-2 text-sm"
+              rows="2"
+            />
+          </div>
 
-        <label className="block mb-2 text-sm text-gray-300">Date</label>
-        <input
-          type="date"
-          name="date"
-          value={editedTinq.date || ""}
-          onChange={handleInputChange}
-          className="w-full bg-[#2a2a2e] border border-gray-600 rounded-full p-2 mb-4"
-        />
+          <div>
+            <label className="block mb-1 text-xs text-gray-300">Date</label>
+            <input
+              type="date"
+              name="date"
+              value={editedTinq.date || ""}
+              onChange={handleInputChange}
+              className="w-full bg-[#2a2a2e] border border-gray-600 rounded-full p-2 text-sm"
+            />
+          </div>
 
-        <label className="block mb-2 text-sm text-gray-300">Category</label>
-        <select
-          name="category"
-          value={editedTinq.category || ""}
-          onChange={handleInputChange}
-          className="w-full bg-[#2a2a2e] border border-gray-600 rounded-full p-2 mb-4"
-        >
-          <option value="">— No category —</option>
-          {categories.map((cat) => (
-            <option key={cat._id} value={cat._id}>
-              {cat.name}
-            </option>
-          ))}
-        </select>
+          <div>
+            <label className="block mb-1 text-xs text-gray-300">Category</label>
+            <select
+              name="category"
+              value={editedTinq.category || ""}
+              onChange={handleInputChange}
+              className="w-full bg-[#2a2a2e] border border-gray-600 rounded-full p-2 text-sm"
+            >
+              <option value="">— No category —</option>
+              {categories.map((cat) => (
+                <option key={cat._id} value={cat._id}>
+                  {cat.name}
+                </option>
+              ))}
+            </select>
+          </div>
 
-        <label className="block mb-2 text-sm text-gray-300">Location</label>
-        <select
-          name="location"
-          value={editedTinq.location || "indoor"}
-          onChange={handleInputChange}
-          className="w-full bg-[#2a2a2e] border border-gray-600 rounded-full p-2 mb-4"
-        >
-          <option value="indoor">Indoor</option>
-          <option value="outdoor">Outdoor</option>
-        </select>
+          <div className="grid grid-cols-2 gap-3">
+            <div>
+              <label className="block mb-1 text-xs text-gray-300">Location</label>
+              <select
+                name="location"
+                value={editedTinq.location || "indoor"}
+                onChange={handleInputChange}
+                className="w-full bg-[#2a2a2e] border border-gray-600 rounded-full p-2 text-sm"
+              >
+                <option value="indoor">Indoor</option>
+                <option value="outdoor">Outdoor</option>
+              </select>
+            </div>
 
-        <label className="block mb-2 text-sm text-gray-300">Priority</label>
-        <select
-          name="priority"
-          value={editedTinq.priority || "medium"}
-          onChange={handleInputChange}
-          className="w-full bg-[#2a2a2e] border border-gray-600 rounded-full p-2 mb-4"
-        >
-          <option value="low">Low</option>
-          <option value="medium">Medium</option>
-          <option value="high">High</option>
-        </select>
+            <div>
+              <label className="block mb-1 text-xs text-gray-300">Priority</label>
+              <select
+                name="priority"
+                value={editedTinq.priority || "medium"}
+                onChange={handleInputChange}
+                className="w-full bg-[#2a2a2e] border border-gray-600 rounded-full p-2 text-sm"
+              >
+                <option value="low">Low</option>
+                <option value="medium">Medium</option>
+                <option value="high">High</option>
+              </select>
+            </div>
+          </div>
 
-        <label className="block mb-2 text-sm text-gray-300">Status</label>
-        <select
-          name="status"
-          value={editedTinq.status || "pending"}
-          onChange={handleInputChange}
-          className="w-full bg-[#2a2a2e] border border-gray-600 rounded-full p-2 mb-6"
-        >
-          <option value="pending">Pending</option>
-          <option value="in-progress">In Progress</option>
-          <option value="done">Done</option>
-        </select>
+          <div>
+            <label className="block mb-1 text-xs text-gray-300">Status</label>
+            <select
+              name="status"
+              value={editedTinq.status || "pending"}
+              onChange={handleInputChange}
+              className="w-full bg-[#2a2a2e] border border-gray-600 rounded-full p-2 text-sm mb-3"
+            >
+              <option value="pending">Pending</option>
+              <option value="in-progress">In Progress</option>
+              <option value="done">Done</option>
+            </select>
+          </div>
 
-        <div className="flex justify-between items-center mb-6">
-          <button
-            onClick={handleSave}
-            className="bg-purpleGlow hover:bg-purple-700 text-white px-6 py-2 rounded-full transition"
-          >
-            Save Changes
-          </button>
-          <button
-            onClick={() => navigate("/dashboard")}
-            className="text-gray-400 hover:text-white text-sm"
-          >
-            Cancel
-          </button>
+          <div className="flex justify-between items-center">
+            <button
+              onClick={handleSave}
+              className="bg-purple-600 hover:bg-purple-700 text-white px-4 py-2 rounded-full text-sm font-medium"
+            >
+              Save Changes
+            </button>
+            <button
+              onClick={() => navigate("/dashboard")}
+              className="text-gray-400 hover:text-white text-xs"
+            >
+              Cancel
+            </button>
+          </div>
         </div>
 
-        {/* --- Manage Categories --- */}
-        <div className="border-t border-gray-700 pt-4">
+        {/* Manage Categories */}
+        <div className="border-t border-gray-700 pt-3 mt-4">
           <button
             onClick={() => setShowCatMgr((s) => !s)}
-            className="text-sm bg-[#2a2a2e] border border-gray-600 px-4 py-2 rounded-full hover:bg-[#34343a] transition"
+            className="text-xs bg-[#2a2a2e] border border-gray-600 px-3 py-1 rounded-lg hover:bg-[#34343a] transition"
           >
             {showCatMgr ? "Hide" : "Manage"} categories
           </button>
 
           {showCatMgr && (
-            <div className="mt-4 space-y-4">
-              {/* Create */}
+            <div className="mt-3 space-y-3">
               <div className="flex gap-2 items-center">
                 <input
                   type="text"
                   placeholder="New category name"
                   value={newCategory}
                   onChange={(e) => setNewCategory(e.target.value)}
-                  className="flex-1 bg-[#2a2a2e] border border-gray-600 rounded-full p-2"
+                  className="flex-1 bg-[#2a2a2e] border border-gray-600 rounded-full p-2 text-sm"
                 />
                 <button
                   onClick={handleCreateCategory}
-                  className="bg-purple-600 hover:bg-purple-700 text-white px-4 py-2 rounded-full"
+                  className="bg-purple-600 hover:bg-purple-700 text-white px-3 py-2 rounded-full text-sm"
                 >
                   Add
                 </button>
               </div>
 
-              {/* List + rename/delete */}
               <ul className="space-y-2">
                 {categories.length === 0 && (
-                  <li className="text-gray-400 text-sm italic">No categories yet.</li>
+                  <li className="text-gray-400 text-xs italic">No categories yet.</li>
                 )}
                 {categories.map((cat) => (
                   <li
                     key={cat._id}
-                    className="flex items-center justify-between bg-[#2a2a2e] border border-gray-700 rounded-lg p-2"
+                    className="flex items-center justify-between bg-[#2a2a2e] border border-gray-700 rounded-full p-2"
                   >
                     {renameId === cat._id ? (
                       <div className="flex-1 flex gap-2 items-center">
                         <input
-                          className="flex-1 bg-[#1f1f22] border border-gray-700 rounded-full p-2"
+                          className="flex-1 bg-[#1f1f22] border border-gray-700 rounded-lg p-1 text-sm"
                           value={renameValue}
                           onChange={(e) => setRenameValue(e.target.value)}
                         />
                         <button
                           onClick={handleConfirmRename}
-                          className="text-sm bg-green-600 hover:bg-green-700 text-white px-3 py-1 rounded-full"
+                          className="text-xs bg-green-600 hover:bg-green-700 text-white px-2 py-1 rounded-full"
                         >
                           Save
                         </button>
@@ -300,24 +296,24 @@ export default function TinqDetails() {
                             setRenameId("");
                             setRenameValue("");
                           }}
-                          className="text-sm bg-gray-600 hover:bg-gray-700 text-white px-3 py-1 rounded-full"
+                          className="text-xs bg-gray-600 hover:bg-gray-700 text-white px-2 py-1 rounded-full"
                         >
                           Cancel
                         </button>
                       </div>
                     ) : (
                       <>
-                        <span className="truncate mr-3">{cat.name}</span>
-                        <div className="flex gap-2 shrink-0">
+                        <span className="text-sm truncate mr-2">{cat.name}</span>
+                        <div className="flex gap-1">
                           <button
                             onClick={() => handleStartRename(cat)}
-                            className="text-sm bg-blue-600 hover:bg-blue-700 text-white px-3 py-1 rounded-full"
+                            className="text-xs bg-blue-600 hover:bg-blue-700 text-white px-2 py-1 rounded-full"
                           >
                             Rename
                           </button>
                           <button
                             onClick={() => handleDeleteCategory(cat._id)}
-                            className="text-sm bg-red-600 hover:bg-red-700 text-white px-3 py-1 rounded-full"
+                            className="text-xs bg-red-600 hover:bg-red-700 text-white px-2 py-1 rounded-full"
                           >
                             Delete
                           </button>
