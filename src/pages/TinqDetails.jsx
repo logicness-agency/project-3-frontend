@@ -120,19 +120,19 @@ export default function TinqDetails() {
         />
       </div>
 
-      <div className="relative z-10 max-w-md w-full bg-[#1c1c1e] p-4 rounded-lg shadow-md border border-purple-600/50">
-        <div className="flex justify-between items-center mb-3">
+      <div className="relative z-10 max-w-md w-full bg-[#1c1c1e] p-6 rounded-2xl shadow-md border border-purple-600/50">
+        <div className="flex justify-between items-center mb-4">
           <h2 className="text-xl font-bold">Edit tinq</h2>
           <button
             onClick={handleDelete}
-            className="bg-red-600 hover:bg-red-700 text-white px-3 py-1 rounded-full transition text-xs"
+            className="bg-red-600 hover:bg-red-700 text-white px-4 py-2 rounded-full transition text-sm"
           >
             Delete
           </button>
         </div>
 
         {/* Edit form */}
-        <div className="space-y-3">
+        <div className="space-y-4">
           <div>
             <label className="block mb-1 text-xs text-gray-300">Title</label>
             <input
@@ -140,7 +140,7 @@ export default function TinqDetails() {
               name="title"
               value={editedTinq.title || ""}
               onChange={handleInputChange}
-              className="w-full bg-[#2a2a2e] border border-gray-600 rounded-full p-2 text-sm"
+              className="w-full bg-[#2a2a2e] border border-gray-600 rounded-full p-2 text-sm px-4"
             />
           </div>
 
@@ -150,8 +150,8 @@ export default function TinqDetails() {
               name="description"
               value={editedTinq.description || ""}
               onChange={handleInputChange}
-              className="w-full bg-[#2a2a2e] border border-gray-600 rounded-full p-2 text-sm"
-              rows="2"
+              className="w-full bg-[#2a2a2e] border border-gray-600 rounded-xl p-2 text-sm px-4"
+              rows="3"
             />
           </div>
 
@@ -162,7 +162,7 @@ export default function TinqDetails() {
               name="date"
               value={editedTinq.date || ""}
               onChange={handleInputChange}
-              className="w-full bg-[#2a2a2e] border border-gray-600 rounded-full p-2 text-sm"
+              className="w-full bg-[#2a2a2e] border border-gray-600 rounded-full p-2 text-sm px-4"
             />
           </div>
 
@@ -172,7 +172,7 @@ export default function TinqDetails() {
               name="category"
               value={editedTinq.category || ""}
               onChange={handleInputChange}
-              className="w-full bg-[#2a2a2e] border border-gray-600 rounded-full p-2 text-sm"
+              className="w-full bg-[#2a2a2e] border border-gray-600 rounded-full p-2 text-sm px-4"
             >
               <option value="">— No category —</option>
               {categories.map((cat) => (
@@ -190,7 +190,7 @@ export default function TinqDetails() {
                 name="location"
                 value={editedTinq.location || "indoor"}
                 onChange={handleInputChange}
-                className="w-full bg-[#2a2a2e] border border-gray-600 rounded-full p-2 text-sm"
+                className="w-full bg-[#2a2a2e] border border-gray-600 rounded-full p-2 text-sm px-4"
               >
                 <option value="indoor">Indoor</option>
                 <option value="outdoor">Outdoor</option>
@@ -203,7 +203,7 @@ export default function TinqDetails() {
                 name="priority"
                 value={editedTinq.priority || "medium"}
                 onChange={handleInputChange}
-                className="w-full bg-[#2a2a2e] border border-gray-600 rounded-full p-2 text-sm"
+                className="w-full bg-[#2a2a2e] border border-gray-600 rounded-full p-2 text-sm px-4"
               >
                 <option value="low">Low</option>
                 <option value="medium">Medium</option>
@@ -218,7 +218,7 @@ export default function TinqDetails() {
               name="status"
               value={editedTinq.status || "pending"}
               onChange={handleInputChange}
-              className="w-full bg-[#2a2a2e] border border-gray-600 rounded-full p-2 text-sm mb-3"
+              className="w-full bg-[#2a2a2e] border border-gray-600 rounded-full p-2 text-sm px-4 mb-3"
             >
               <option value="pending">Pending</option>
               <option value="in-progress">In Progress</option>
@@ -229,7 +229,7 @@ export default function TinqDetails() {
           <div className="flex justify-between items-center">
             <button
               onClick={handleSave}
-              className="bg-purple-600 hover:bg-purple-700 text-white px-4 py-2 rounded-full text-sm font-medium"
+              className="bg-purple-600 hover:bg-purple-700 text-white px-5 py-2 rounded-full text-sm font-medium"
             >
               Save Changes
             </button>
@@ -243,27 +243,27 @@ export default function TinqDetails() {
         </div>
 
         {/* Manage Categories */}
-        <div className="border-t border-gray-700 pt-3 mt-4">
+        <div className="border-t border-gray-700 pt-4 mt-4">
           <button
             onClick={() => setShowCatMgr((s) => !s)}
-            className="text-xs bg-[#2a2a2e] border border-gray-600 px-3 py-1 rounded-lg hover:bg-[#34343a] transition"
+            className="text-xs bg-[#2a2a2e] border border-gray-600 px-4 py-2 rounded-full hover:bg-[#34343a] transition"
           >
             {showCatMgr ? "Hide" : "Manage"} categories
           </button>
 
           {showCatMgr && (
-            <div className="mt-3 space-y-3">
+            <div className="mt-4 space-y-3">
               <div className="flex gap-2 items-center">
                 <input
                   type="text"
                   placeholder="New category name"
                   value={newCategory}
                   onChange={(e) => setNewCategory(e.target.value)}
-                  className="flex-1 bg-[#2a2a2e] border border-gray-600 rounded-full p-2 text-sm"
+                  className="flex-1 bg-[#2a2a2e] border border-gray-600 rounded-full p-2 text-sm px-4"
                 />
                 <button
                   onClick={handleCreateCategory}
-                  className="bg-purple-600 hover:bg-purple-700 text-white px-3 py-2 rounded-full text-sm"
+                  className="bg-purple-600 hover:bg-purple-700 text-white px-4 py-2 rounded-full text-sm"
                 >
                   Add
                 </button>
@@ -276,18 +276,18 @@ export default function TinqDetails() {
                 {categories.map((cat) => (
                   <li
                     key={cat._id}
-                    className="flex items-center justify-between bg-[#2a2a2e] border border-gray-700 rounded-full p-2"
+                    className="flex items-center justify-between bg-[#2a2a2e] border border-gray-700 rounded-xl p-3"
                   >
                     {renameId === cat._id ? (
                       <div className="flex-1 flex gap-2 items-center">
                         <input
-                          className="flex-1 bg-[#1f1f22] border border-gray-700 rounded-lg p-1 text-sm"
+                          className="flex-1 bg-[#1f1f22] border border-gray-700 rounded-full p-2 text-sm px-3"
                           value={renameValue}
                           onChange={(e) => setRenameValue(e.target.value)}
                         />
                         <button
                           onClick={handleConfirmRename}
-                          className="text-xs bg-green-600 hover:bg-green-700 text-white px-2 py-1 rounded-full"
+                          className="text-xs bg-green-600 hover:bg-green-700 text-white px-3 py-1 rounded-full"
                         >
                           Save
                         </button>
@@ -296,7 +296,7 @@ export default function TinqDetails() {
                             setRenameId("");
                             setRenameValue("");
                           }}
-                          className="text-xs bg-gray-600 hover:bg-gray-700 text-white px-2 py-1 rounded-full"
+                          className="text-xs bg-gray-600 hover:bg-gray-700 text-white px-3 py-1 rounded-full"
                         >
                           Cancel
                         </button>
@@ -304,16 +304,16 @@ export default function TinqDetails() {
                     ) : (
                       <>
                         <span className="text-sm truncate mr-2">{cat.name}</span>
-                        <div className="flex gap-1">
+                        <div className="flex gap-2">
                           <button
                             onClick={() => handleStartRename(cat)}
-                            className="text-xs bg-blue-600 hover:bg-blue-700 text-white px-2 py-1 rounded-full"
+                            className="text-xs bg-blue-600 hover:bg-blue-700 text-white px-3 py-1 rounded-full"
                           >
                             Rename
                           </button>
                           <button
                             onClick={() => handleDeleteCategory(cat._id)}
-                            className="text-xs bg-red-600 hover:bg-red-700 text-white px-2 py-1 rounded-full"
+                            className="text-xs bg-red-600 hover:bg-red-700 text-white px-3 py-1 rounded-full"
                           >
                             Delete
                           </button>
