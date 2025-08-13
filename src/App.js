@@ -8,6 +8,7 @@ import About from "./pages/About";
 import Profile from "./pages/Profile";
 import CreateTinq from "./pages/CreateTinq";
 import TinqDetails from "./pages/TinqDetails";
+
 function App() {
   return (
     <>
