@@ -75,7 +75,7 @@ export default function Profile() {
             />
             <button
               disabled
-              className="w-full bg-purple-600 text-white py-2 px-4 rounded-lg text-sm font-medium hover:bg-purple-700 transition"
+              className="w-full bg-purple-600 text-white py-2 px-4 rounded-full text-sm font-medium hover:bg-purple-700 transition"
             >
               Change Password
             </button>
@@ -90,7 +90,7 @@ export default function Profile() {
           </div>
           <button
             disabled
-            className="w-full bg-red-600/80 hover:bg-red-700 text-white py-2 px-4 rounded-lg text-sm font-medium transition"
+            className="w-full bg-red-600/80 hover:bg-red-700 text-white py-2 px-4 rounded-full text-sm font-medium transition"
           >
             Delete Account
           </button>
