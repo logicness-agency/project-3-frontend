@@ -422,8 +422,8 @@ export default function Dashboard() {
 
         {/* Upcoming - Single row */}
         <div className="relative rounded-xl bg-[#1c1c1e] p-4 card--border-glow text-white md:col-span-4 h-48">
-          <h2 className="text-xl font-bold mb-2">Upcoming Tasks</h2>
-          <p className="text-sm text-gray-400">Tasks scheduled for next week</p>
+          <h2 className="text-xl font-bold mb-2">UWeather alert</h2>
+          <p className="text-sm text-gray-400">Feature coming soon</p>
         </div>
       </div>
 
