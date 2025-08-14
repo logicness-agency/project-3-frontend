@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import axios from "axios";
-import Aurora from '../components/Aurora/Aurora';
+import Aurora from "../components/Aurora/Aurora";
 
 const API_URL = process.env.REACT_APP_API_URL;
 
@@ -13,91 +13,84 @@ function SignupPage() {
 
   const navigate = useNavigate();
 
-  const handleEmail = (e) => setEmail(e.target.value);
-  const handlePassword = (e) => setPassword(e.target.value);
-  const handleName = (e) => setName(e.target.value);
-
-  const handleSignupSubmit = (e) => {
+  const handleSignupSubmit = async (e) => {
     e.preventDefault();
-    const requestBody = { email, password, name };
-
-    axios.post(`${API_URL}/auth/signup`, requestBody)
-      .then((response) => {
-        console.log("Signup success:", response.data); // Debug-Ausgabe
-        navigate("/login");
-      })
-      .catch((error) => {
-        console.error("Signup error:", error); // Debug-Ausgabe
-        const errorDescription = 
-          error.response?.data?.message || "Signup failed. Please try again.";
-        setErrorMessage(errorDescription);
-      });
+    try {
+      const requestBody = { email, password, name };
+      const res = await axios.post(`${API_URL}/auth/signup`, requestBody);
+      console.log("Signup success:", res.data);
+      navigate("/login");
+    } catch (error) {
+      console.error("Signup error:", error);
+      const msg = error.response?.data?.message || "Signup failed. Please try again.";
+      setErrorMessage(msg);
+    }
   };
 
   return (
-    <div className="bg-dark min-h-screen flex items-center justify-center px-4">
+    <div className="bg-dark min-h-screen flex items-center justify-center px-4 py-8">
       <div className="absolute inset-0 z-0">
-        <Aurora
-          colorStops={["#A855F7", "#B685FF", "#9ABAE5"]}
-          blend={0.5}
-          amplitude={1.0}
-          speed={0.5}
-        />
+        <Aurora colorStops={["#A855F7", "#B685FF", "#9ABAE5"]} blend={0.5} amplitude={1.0} speed={0.5} />
       </div>
-      <div className="relative w-full max-w-2xl p-8 rounded-xl bg-[#1c1c1e] card--border-glow text-white shadow-lg">
-        <form onSubmit={handleSignupSubmit} className="grid grid-cols-1 gap-4">
-          <h3 className="text-2xl font-semibold text-white mb-6">Sign Up</h3>
 
-          <label htmlFor="email" className="text-white text-sm font-medium">
+      <div className="relative w-full max-w-sm md:max-w-md lg:max-w-lg p-6 md:p-8 rounded-xl bg-[#1c1c1e] card--border-glow text-white shadow-lg">
+        <form onSubmit={handleSignupSubmit} className="grid grid-cols-1 gap-3 md:gap-4">
+          <h3 className="text-xl md:text-2xl font-semibold text-white mb-4 md:mb-6">Sign Up</h3>
+
+          <label htmlFor="email" className="text-white text-sm md:text-base font-medium">
             Email
           </label>
           <input
             type="email"
-            name="email"
             id="email"
             value={email}
-            onChange={handleEmail}
-            className="border rounded-full p-2 w-full bg-[#2a2a2e] text-white"
+            onChange={(e) => setEmail(e.target.value)}
+            className="bg-[#2a2a2e] text-white border border-gray-600 rounded-full px-3 py-2 md:px-4 md:py-2.5 w-full focus:border-purpleGlow focus:ring-1 focus:ring-purpleGlow transition"
+            autoComplete="email"
+            required
           />
 
-          <label htmlFor="password" className="text-white text-sm font-medium">
+          <label htmlFor="password" className="text-white text-sm md:text-base font-medium">
             Password
           </label>
           <input
             type="password"
-            name="password"
             id="password"
             value={password}
-            onChange={handlePassword}
-            className="border rounded-full p-2 w-full bg-[#2a2a2e] text-white"
+            onChange={(e) => setPassword(e.target.value)}
+            className="bg-[#2a2a2e] text-white border border-gray-600 rounded-full px-3 py-2 md:px-4 md:py-2.5 w-full focus:border-purpleGlow focus:ring-1 focus:ring-purpleGlow transition"
+            autoComplete="new-password"
+            minLength={6}
+            required
           />
 
-          <label htmlFor="name" className="text-white text-sm font-medium">
+          <label htmlFor="name" className="text-white text-sm md:text-base font-medium">
             Name
           </label>
           <input
             type="text"
-            name="name"
             id="name"
             value={name}
-            onChange={handleName}
-            className="border rounded-full p-2 w-full bg-[#2a2a2e] text-white"
+            onChange={(e) => setName(e.target.value)}
+            className="bg-[#2a2a2e] text-white border border-gray-600 rounded-full px-3 py-2 md:px-4 md:py-2.5 w-full focus:border-purpleGlow focus:ring-1 focus:ring-purpleGlow transition"
+            autoComplete="name"
+            required
           />
 
           <button
             type="submit"
-            className="bg-purpleGlow rounded-full hover:bg-purple-700 text-white font-bold py-2 px-4 rounded mt-4 transition duration-150 ease-in-out"
+            className="bg-purpleGlow rounded-full hover:bg-purple-700 text-white font-semibold py-2 md:py-2.5 px-4 mt-3 md:mt-4 transition"
           >
             Create Account
           </button>
 
           {errorMessage && (
-            <p className="text-red-500 text-sm mt-2">{errorMessage}</p>
+            <p className="text-red-500 text-sm md:text-base mt-2">{errorMessage}</p>
           )}
 
-          <p className="mt-4 text-sm">
+          <p className="mt-3 md:mt-4 text-gray-300 text-sm md:text-base">
             Already have an account?{" "}
-            <Link to="/login" className="text-purple-400 hover:underline">
+            <Link to="/login" className="text-purple-400 hover:text-purple-300 hover:underline">
               Log in
             </Link>
           </p>
