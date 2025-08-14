@@ -190,8 +190,10 @@ export default function CreateTinq() {
         </form>
       </div>
 
+
       {/* shared manager */}
       <CategoryManager open={showCatManager} onClose={() => setShowCatManager(false)} />
+      
     </div>
   );
 }
