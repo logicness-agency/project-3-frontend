@@ -14,10 +14,9 @@ export default function About() {
       <div className="absolute inset-0 z-10 flex items-center justify-center px-6">
         <div className="max-w-3xl w-full rounded-xl border border-white/10 bg-black/40 backdrop-blur-sm p-6 text-purple-100">
           <p className="text-base leading-relaxed">
-            The idea was to creat a task management to visiualize progress to stay on track to get things (tinqs) done.
-            Built with React, Node.js, and MongoDB. Note apps or to-do list are pretty much boring and take more energy
-            than they give. I wanted to creat an app which you want to use and where the ui gives a dopamine kick and
-            feels like the Berlin techno scene.
+           Tinqs is a task management app that makes progress visible and keeps you on track.
+           Built with React, Node.js, and MongoDB.
+           Forget boring to-do lists — Tinqs delivers a dopamine kick with a UI inspired by the Berlin techno scene.   
           </p>
         </div>
       </div>
