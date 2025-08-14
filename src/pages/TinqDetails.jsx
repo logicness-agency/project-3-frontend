@@ -183,19 +183,8 @@ export default function TinqDetails() {
             </select>
           </div>
 
-          <div className="grid grid-cols-2 gap-3">
-            <div>
-              <label className="block mb-1 text-xs text-gray-300">Location</label>
-              <select
-                name="location"
-                value={editedTinq.location || "indoor"}
-                onChange={handleInputChange}
-                className="w-full bg-[#2a2a2e] border border-gray-600 rounded-full p-2 text-sm px-4"
-              >
-                <option value="indoor">Indoor</option>
-                <option value="outdoor">Outdoor</option>
-              </select>
-            </div>
+          <div className="grid ">
+            
 
             <div>
               <label className="block mb-1 text-xs text-gray-300">Priority</label>

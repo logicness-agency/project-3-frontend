@@ -120,16 +120,6 @@ export default function CreateTinq() {
           />
 
           <select
-            name="location"
-            value={formState.location}
-            onChange={handleChange}
-            className="rounded-full p-2 bg-[#2a2a2e] border border-gray-600 text-white"
-          >
-            <option value="indoor">Indoor</option>
-            <option value="outdoor">Outdoor</option>
-          </select>
-
-          <select
             name="priority"
             value={formState.priority}
             onChange={handleChange}
