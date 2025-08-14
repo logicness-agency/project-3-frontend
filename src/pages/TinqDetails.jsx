@@ -21,26 +21,24 @@ export default function TinqDetails() {
   const authHeader = { headers: { Authorization: `Bearer ${storedToken}` } };
 
   const loadTinq = () =>
-    axios
-      .get(`${API_URL}/tasks/${taskId}`, authHeader)
-      .then((res) => {
-        setTinq(res.data);
-        setEditedTinq({
-          ...res.data,
-          date: res.data.date ? res.data.date.split("T")[0] : "",
-          category: res.data.category?._id || "",
-        });
+    axios.get(`${API_URL}/tasks/${taskId}`, authHeader).then((res) => {
+      setTinq(res.data);
+      setEditedTinq({
+        ...res.data,
+        date: res.data.date ? res.data.date.split("T")[0] : "",
+        category: res.data.category?._id || "",
       });
+    });
 
   const loadCategories = () =>
     axios.get(`${API_URL}/categories`, authHeader).then((res) => setCategories(res.data));
 
   useEffect(() => {
-    Promise.all([loadTinq(), loadCategories()])
-      .catch((err) => {
-        console.error("Error loading detail page:", err.response?.data || err.message);
-        navigate("/dashboard");
-      });
+    Promise.all([loadTinq(), loadCategories()]).catch((err) => {
+      console.error("Error loading detail page:", err.response?.data || err.message);
+      navigate("/dashboard");
+    });
+  
   }, [taskId]);
 
   const handleInputChange = (e) => {
@@ -66,6 +64,7 @@ export default function TinqDetails() {
       .catch((err) => console.error("Error deleting tinq:", err.response?.data || err.message));
   };
 
+  // Category CRUD
   const handleCreateCategory = () => {
     const name = newCategory.trim();
     if (!name) return;
@@ -112,27 +111,23 @@ export default function TinqDetails() {
   return (
     <div className="relative min-h-screen bg-dark flex items-center justify-center p-4 text-white overflow-hidden">
       <div className="absolute inset-0 z-0">
-        <Aurora
-          colorStops={["#A855F7", "#B685FF", "#9ABAE5"]}
-          blend={0.5}
-          amplitude={1.0}
-          speed={0.5}
-        />
+        <Aurora colorStops={["#A855F7", "#B685FF", "#9ABAE5"]} blend={0.5} amplitude={1.0} speed={0.5} />
       </div>
 
-      <div className="relative z-10 max-w-md w-full bg-[#1c1c1e] p-6 rounded-2xl shadow-md border border-purple-600/50">
-        <div className="flex justify-between items-center mb-4">
-          <h2 className="text-xl font-bold">Edit tinq</h2>
+      {/* SCHMAL HALTEN – auch auf Desktop */}
+      <div className="relative z-10 w-full max-w-sm md:max-w-sm lg:max-w-sm bg-[#1c1c1e] p-5 rounded-2xl shadow-md border border-purple-600/50">
+        <div className="flex justify-between items-center mb-3">
+          <h2 className="text-lg md:text-xl font-bold">Edit tinq</h2>
           <button
             onClick={handleDelete}
-            className="bg-red-600 hover:bg-red-700 text-white px-4 py-2 rounded-full transition text-sm"
+            className="bg-red-600 hover:bg-red-700 text-white px-4 py-1.5 rounded-full transition text-sm"
           >
             Delete
           </button>
         </div>
 
         {/* Edit form */}
-        <div className="space-y-4">
+        <div className="space-y-3">
           <div>
             <label className="block mb-1 text-xs text-gray-300">Title</label>
             <input
@@ -140,7 +135,7 @@ export default function TinqDetails() {
               name="title"
               value={editedTinq.title || ""}
               onChange={handleInputChange}
-              className="w-full bg-[#2a2a2e] border border-gray-600 rounded-full p-2 text-sm px-4"
+              className="w-full bg-[#2a2a2e] border border-gray-600 rounded-full px-4 py-2 text-sm"
             />
           </div>
 
@@ -150,7 +145,7 @@ export default function TinqDetails() {
               name="description"
               value={editedTinq.description || ""}
               onChange={handleInputChange}
-              className="w-full bg-[#2a2a2e] border border-gray-600 rounded-xl p-2 text-sm px-4"
+              className="w-full bg-[#2a2a2e] border border-gray-600 rounded-xl px-4 py-2 text-sm"
               rows="3"
             />
           </div>
@@ -162,7 +157,7 @@ export default function TinqDetails() {
               name="date"
               value={editedTinq.date || ""}
               onChange={handleInputChange}
-              className="w-full bg-[#2a2a2e] border border-gray-600 rounded-full p-2 text-sm px-4"
+              className="w-full bg-[#2a2a2e] border border-gray-600 rounded-full px-4 py-2 text-sm"
             />
           </div>
 
@@ -172,7 +167,7 @@ export default function TinqDetails() {
               name="category"
               value={editedTinq.category || ""}
               onChange={handleInputChange}
-              className="w-full bg-[#2a2a2e] border border-gray-600 rounded-full p-2 text-sm px-4"
+              className="w-full bg-[#2a2a2e] border border-gray-600 rounded-full px-4 py-2 text-sm"
             >
               <option value="">— No category —</option>
               {categories.map((cat) => (
@@ -183,49 +178,45 @@ export default function TinqDetails() {
             </select>
           </div>
 
-          <div className="grid ">
-            
-
+          {/* Priority & Status nebeneinander */}
+          <div className="grid grid-cols-2 gap-3">
             <div>
               <label className="block mb-1 text-xs text-gray-300">Priority</label>
               <select
                 name="priority"
                 value={editedTinq.priority || "medium"}
                 onChange={handleInputChange}
-                className="w-full bg-[#2a2a2e] border border-gray-600 rounded-full p-2 text-sm px-4"
+                className="w-full bg-[#2a2a2e] border border-gray-600 rounded-full px-4 py-2 text-sm"
               >
                 <option value="low">Low</option>
                 <option value="medium">Medium</option>
                 <option value="high">High</option>
               </select>
             </div>
+
+            <div>
+              <label className="block mb-1 text-xs text-gray-300">Status</label>
+              <select
+                name="status"
+                value={editedTinq.status || "pending"}
+                onChange={handleInputChange}
+                className="w-full bg-[#2a2a2e] border border-gray-600 rounded-full px-4 py-2 text-sm"
+              >
+                <option value="pending">Pending</option>
+                <option value="in-progress">In Progress</option>
+                <option value="done">Done</option>
+              </select>
+            </div>
           </div>
 
-          <div>
-            <label className="block mb-1 text-xs text-gray-300">Status</label>
-            <select
-              name="status"
-              value={editedTinq.status || "pending"}
-              onChange={handleInputChange}
-              className="w-full bg-[#2a2a2e] border border-gray-600 rounded-full p-2 text-sm px-4 mb-3"
-            >
-              <option value="pending">Pending</option>
-              <option value="in-progress">In Progress</option>
-              <option value="done">Done</option>
-            </select>
-          </div>
-
-          <div className="flex justify-between items-center">
+          <div className="flex justify-between items-center pt-1">
             <button
               onClick={handleSave}
               className="bg-purple-600 hover:bg-purple-700 text-white px-5 py-2 rounded-full text-sm font-medium"
             >
               Save Changes
             </button>
-            <button
-              onClick={() => navigate("/dashboard")}
-              className="text-gray-400 hover:text-white text-xs"
-            >
+            <button onClick={() => navigate("/dashboard")} className="text-gray-400 hover:text-white text-xs">
               Cancel
             </button>
           </div>
@@ -241,14 +232,14 @@ export default function TinqDetails() {
           </button>
 
           {showCatMgr && (
-            <div className="mt-4 space-y-3">
+            <div className="mt-3 space-y-2">
               <div className="flex gap-2 items-center">
                 <input
                   type="text"
                   placeholder="New category name"
                   value={newCategory}
                   onChange={(e) => setNewCategory(e.target.value)}
-                  className="flex-1 bg-[#2a2a2e] border border-gray-600 rounded-full p-2 text-sm px-4"
+                  className="flex-1 bg-[#2a2a2e] border border-gray-600 rounded-full px-4 py-2 text-sm"
                 />
                 <button
                   onClick={handleCreateCategory}
@@ -259,9 +250,7 @@ export default function TinqDetails() {
               </div>
 
               <ul className="space-y-2">
-                {categories.length === 0 && (
-                  <li className="text-gray-400 text-xs italic">No categories yet.</li>
-                )}
+                {categories.length === 0 && <li className="text-gray-400 text-xs italic">No categories yet.</li>}
                 {categories.map((cat) => (
                   <li
                     key={cat._id}
@@ -270,7 +259,7 @@ export default function TinqDetails() {
                     {renameId === cat._id ? (
                       <div className="flex-1 flex gap-2 items-center">
                         <input
-                          className="flex-1 bg-[#1f1f22] border border-gray-700 rounded-full p-2 text-sm px-3"
+                          className="flex-1 bg-[#1f1f22] border border-gray-700 rounded-full px-3 py-2 text-sm"
                           value={renameValue}
                           onChange={(e) => setRenameValue(e.target.value)}
                         />
