@@ -16,7 +16,7 @@ export default function About() {
           <p className="text-base leading-relaxed">
            Tinqs is a task management app that makes progress visible and keeps you on track.
            Built with React, Node.js, and MongoDB.
-           Forget boring to-do lists — Tinqs delivers a dopamine kick with a UI inspired by the Berlin techno scene.   
+           Forget boring to-do lists — tinqs delivers a dopamine kick with a UI inspired by the Berlin techno scene.   
           </p>
         </div>
       </div>
