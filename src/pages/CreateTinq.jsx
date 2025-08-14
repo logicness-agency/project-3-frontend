@@ -14,43 +14,38 @@ export default function CreateTinq() {
   const [newCategory, setNewCategory] = useState("");
   const [showCatManager, setShowCatManager] = useState(false);
 
+  // location entfernt
   const [formState, setFormState] = useState({
     title: "",
     description: "",
     date: "",
-    location: "indoor",
     priority: "medium",
     category: "",
+    status: "pending",
   });
 
   useEffect(() => {
     if (!storedToken) return;
     axios
-      .get(`${API_URL}/categories`, {
-        headers: { Authorization: `Bearer ${storedToken}` },
-      })
+      .get(`${API_URL}/categories`, { headers: { Authorization: `Bearer ${storedToken}` } })
       .then((res) => setCategories(res.data))
-      .catch((err) => {
-        console.error("Error loading categories:", err.response?.data || err.message);
-      });
+      .catch((err) => console.error("Error loading categories:", err.response?.data || err.message));
   }, [storedToken, showCatManager]);
 
   const handleCategoryCreate = () => {
-    if (!newCategory.trim()) return;
-
+    const name = newCategory.trim();
+    if (!name) return;
     axios
       .post(
         `${API_URL}/categories`,
-        { name: newCategory },
+        { name },
         { headers: { Authorization: `Bearer ${storedToken}` } }
       )
       .then((res) => {
         setCategories((prev) => [...prev, res.data]);
         setNewCategory("");
       })
-      .catch((err) => {
-        console.error("Error creating category:", err.response?.data || err.message);
-      });
+      .catch((err) => console.error("Error creating category:", err.response?.data || err.message));
   };
 
   const handleChange = (e) => {
@@ -60,46 +55,40 @@ export default function CreateTinq() {
 
   const handleSubmit = (e) => {
     e.preventDefault();
-
-    if (!formState.date || isNaN(Date.parse(formState.date))) {
+    if (formState.date && isNaN(Date.parse(formState.date))) {
       console.error("Invalid date input");
       return;
     }
+    const payload = { ...formState };
+    if (!payload.date) delete payload.date; // leeres Datum nicht senden
 
     axios
-      .post(`${API_URL}/tasks`, formState, {
-        headers: { Authorization: `Bearer ${storedToken}` },
-      })
+      .post(`${API_URL}/tasks`, payload, { headers: { Authorization: `Bearer ${storedToken}` } })
       .then(() => navigate("/dashboard"))
-      .catch((err) => {
-        console.error("Error creating tinq:", err.response?.data || err.message);
-      });
+      .catch((err) => console.error("Error creating tinq:", err.response?.data || err.message));
   };
 
   return (
     <div className="relative min-h-screen bg-dark flex items-center justify-center px-4 overflow-hidden">
       <div className="absolute inset-0 z-0">
-        <Aurora
-          colorStops={["#A855F7", "#B685FF", "#9ABAE5"]}
-          blend={0.5}
-          amplitude={1.0}
-          speed={0.5}
-        />
+        <Aurora colorStops={["#A855F7", "#B685FF", "#9ABAE5"]} blend={0.5} amplitude={1.0} speed={0.5} />
       </div>
 
-      <div className="relative z-10 bg-[#1c1c1e] p-8 rounded-xl shadow-md w-full max-w-2xl card--border-glow text-white">
-        <div className="flex items-center justify-between mb-6">
-          <h2 className="text-2xl font-bold">Create New tinq</h2>
+      {/* kompakt auf Laptop: max-w-sm/md und geringere Paddings */}
+      <div className="relative z-10 bg-[#1c1c1e] p-6 md:p-6 rounded-xl shadow-md w-full max-w-sm md:max-w-sm lg:max-w-md card--border-glow text-white">
+        <div className="flex items-center justify-between mb-4 md:mb-6">
+          <h2 className="text-xl md:text-2xl font-bold">Create New tinq</h2>
         </div>
 
-        <form onSubmit={handleSubmit} className="grid grid-cols-1 gap-4">
+        <form onSubmit={handleSubmit} className="grid grid-cols-1 gap-3">
           <input
             type="text"
             name="title"
             value={formState.title}
             onChange={handleChange}
             placeholder="Title"
-            className="rounded-full p-2 bg-[#2a2a2e] border border-gray-600 text-white"
+            className="rounded-full px-4 py-2 bg-[#2a2a2e] border border-gray-600 text-white text-sm"
+            required
           />
 
           <textarea
@@ -107,8 +96,8 @@ export default function CreateTinq() {
             value={formState.description}
             onChange={handleChange}
             placeholder="Description"
-            className="rounded-xl p-2 bg-[#2a2a2e] border border-gray-600 text-white"
-            rows="4"
+            className="rounded-xl px-4 py-2 bg-[#2a2a2e] border border-gray-600 text-white text-sm"
+            rows="3"
           />
 
           <input
@@ -116,34 +105,48 @@ export default function CreateTinq() {
             name="date"
             value={formState.date}
             onChange={handleChange}
-            className="rounded-full p-2 bg-[#2a2a2e] border border-gray-600 text-white"
+            className="rounded-full px-4 py-2 bg-[#2a2a2e] border border-gray-600 text-white text-sm"
           />
 
-          <select
-            name="priority"
-            value={formState.priority}
-            onChange={handleChange}
-            className="rounded-full p-2 bg-[#2a2a2e] border border-gray-600 text-white"
-          >
-            <option value="low">Low</option>
-            <option value="medium">Medium</option>
-            <option value="high">High</option>
-          </select>
+          <div className="grid grid-cols-2 gap-3">
+            <select
+              name="priority"
+              value={formState.priority}
+              onChange={handleChange}
+              className="rounded-full px-4 py-2 bg-[#2a2a2e] border border-gray-600 text-white text-sm"
+            >
+              <option value="low">Low</option>
+              <option value="medium">Medium</option>
+              <option value="high">High</option>
+            </select>
+
+            <select
+              name="status"
+              value={formState.status}
+              onChange={handleChange}
+              className="rounded-full px-4 py-2 bg-[#2a2a2e] border border-gray-600 text-white text-sm"
+            >
+              <option value="pending">Pending</option>
+              <option value="in-progress">In Progress</option>
+              <option value="done">Done</option>
+            </select>
+          </div>
 
           <div className="flex gap-2">
             <select
               name="category"
               value={formState.category}
               onChange={handleChange}
-              className="flex-1 rounded-full p-2 bg-[#2a2a2e] border border-gray-600 text-white"
+              className="flex-1 rounded-full px-4 py-2 bg-[#2a2a2e] border border-gray-600 text-white text-sm"
             >
-              <option value="">-- No category --</option>
+              <option value="">— No category —</option>
               {categories.map((cat) => (
                 <option key={cat._id} value={cat._id}>
                   {cat.name}
                 </option>
               ))}
             </select>
+
             <button
               type="button"
               onClick={() => setShowCatManager(true)}
@@ -160,12 +163,13 @@ export default function CreateTinq() {
               placeholder="Quick add category"
               value={newCategory}
               onChange={(e) => setNewCategory(e.target.value)}
-              className="rounded-full p-2 bg-[#2a2a2e] border border-gray-600 text-white flex-1"
+              className="flex-1 rounded-full px-4 py-2 bg-[#2a2a2e] border border-gray-600 text-white text-sm"
             />
             <button
               type="button"
               onClick={handleCategoryCreate}
-              className="bg-purple-600 hover:bg-purple-700 text-white px-4 py-2 rounded-full"
+              className="bg-purple-600 hover:bg-purple-700 text-white px-4 py-2 rounded-full text-sm"
+              title="Add category"
             >
               +
             </button>
@@ -173,17 +177,15 @@ export default function CreateTinq() {
 
           <button
             type="submit"
-            className="bg-purpleGlow rounded-full hover:bg-purple-700 text-white font-bold py-2 px-4 mt-4 transition"
+            className="bg-purpleGlow rounded-full hover:bg-purple-700 text-white font-semibold py-2.5 px-4 mt-2 transition text-sm"
           >
             Create tinq
           </button>
         </form>
       </div>
 
-
-      {/* shared manager */}
+      {/* Shared manager */}
       <CategoryManager open={showCatManager} onClose={() => setShowCatManager(false)} />
-      
     </div>
   );
 }
