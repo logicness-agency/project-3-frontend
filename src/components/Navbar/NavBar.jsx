@@ -34,9 +34,6 @@ function Navbar() {
             <Link to="/dashboard" className={linkClasses("/dashboard")}>
               Dashboard
             </Link>
-            <Link to="/profile" className={linkClasses("/profile")}>
-              Profile
-            </Link>
             <button
               onClick={() => {
                 logOutUser();

@@ -5,7 +5,6 @@ import Navbar from './components/Navbar/NavBar';
 import LoginPage from "./pages/LoginPage";
 import SignupPage from "./pages/SignupPage";
 import About from "./pages/About";
-import Profile from "./pages/Profile";
 import CreateTinq from "./pages/CreateTinq";
 import TinqDetails from "./pages/TinqDetails";
 
@@ -19,7 +18,6 @@ function App() {
         <Route path="/login" element={<LoginPage />} />
         <Route path="/signup" element={<SignupPage />} />
         <Route path="/about" element={<About />} />
-        <Route path="/profile" element={<Profile />} />
         <Route path="/add-tinq" element={<CreateTinq />} />
         <Route path="/tinq/:taskId" element={<TinqDetails />} />
       </Routes>
