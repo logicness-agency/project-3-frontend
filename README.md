@@ -20,16 +20,13 @@ cd project-3-frontend
 npm install
 ```
 
-### 3. Set up environment variables
+### 3. Set up environment variables 
 Create a file called **`.env`** in the root of the frontend folder.  
 Add the following (replace with your own values if needed):
 
 ```
 REACT_APP_API_URL=http://localhost:5005/api
 ```
-
-> This is the URL where your backend API runs locally.  
-> If your backend is deployed, replace it with the live API URL.
 
 ### 4. Start the app
 ```bash
